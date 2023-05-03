@@ -33,7 +33,7 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/tasktracker
-    username: tasktracker
+    username: postgres
     password:
     hikari:
       poolName: Hikari
