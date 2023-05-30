@@ -1,98 +1,107 @@
 import './home.scss';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Translate } from 'react-jhipster';
-import { Row, Col, Alert } from 'reactstrap';
-
+import { Row, Col, Alert, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from 'reactstrap';
 import { useAppSelector } from 'app/config/store';
+import { TranslatorContext, Storage } from 'react-jhipster';
 
 export const Home = () => {
   const account = useAppSelector(state => state.authentication.account);
+  const [modal, setModal] = useState(false);
+  const [projectName, setProjectName] = useState('');
+  const [issueType, setIssueType] = useState('');
+  const [workflow, setWorkflow] = useState('');
+
+  const toggleModal = () => {
+    setModal(!modal);
+  };
+
+  const handleProjectNameChange = event => {
+    setProjectName(event.target.value);
+  };
+
+  const handleIssueTypeChange = event => {
+    setIssueType(event.target.value);
+  };
+
+  const handleWorkflowChange = event => {
+    setWorkflow(event.target.value);
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+
+    toggleModal();
+  };
 
   return (
     <Row>
-      <Col md="3" className="pad">
-        <span className="hipster rounded" />
-      </Col>
-      <Col md="9">
+      <Col md="6">
         <h2>
-          <Translate contentKey="home.title">Welcome, Java Hipster!</Translate>
+          <Translate contentKey="home.title">Welcome, {account.login}!</Translate>
         </h2>
         <p className="lead">
-          <Translate contentKey="home.subtitle">This is your homepage</Translate>
+          <Translate contentKey="home.subtitle">What would you like to do today?</Translate>
         </p>
-        {account?.login ? (
-          <div>
-            <Alert color="success">
-              <Translate contentKey="home.logged.message" interpolate={{ username: account.login }}>
-                You are logged in as user {account.login}.
-              </Translate>
-            </Alert>
-          </div>
-        ) : (
-          <div>
-            <Alert color="warning">
-              <Translate contentKey="global.messages.info.authenticated.prefix">If you want to </Translate>
-
-              <Link to="/login" className="alert-link">
-                <Translate contentKey="global.messages.info.authenticated.link"> sign in</Translate>
-              </Link>
-              <Translate contentKey="global.messages.info.authenticated.suffix">
-                , you can try the default accounts:
-                <br />- Administrator (login=&quot;admin&quot; and password=&quot;admin&quot;)
-                <br />- User (login=&quot;user&quot; and password=&quot;user&quot;).
-              </Translate>
-            </Alert>
-
-            <Alert color="warning">
-              <Translate contentKey="global.messages.info.register.noaccount">You do not have an account yet?</Translate>&nbsp;
-              <Link to="/account/register" className="alert-link">
-                <Translate contentKey="global.messages.info.register.link">Register a new account</Translate>
-              </Link>
-            </Alert>
-          </div>
-        )}
-        <p>
-          <Translate contentKey="home.question">If you have any question on JHipster:</Translate>
-        </p>
-
-        <ul>
-          <li>
-            <a href="https://www.jhipster.tech/" target="_blank" rel="noopener noreferrer">
-              <Translate contentKey="home.link.homepage">JHipster homepage</Translate>
-            </a>
-          </li>
-          <li>
-            <a href="https://stackoverflow.com/tags/jhipster/info" target="_blank" rel="noopener noreferrer">
-              <Translate contentKey="home.link.stackoverflow">JHipster on Stack Overflow</Translate>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/jhipster/generator-jhipster/issues?state=open" target="_blank" rel="noopener noreferrer">
-              <Translate contentKey="home.link.bugtracker">JHipster bug tracker</Translate>
-            </a>
-          </li>
-          <li>
-            <a href="https://gitter.im/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer">
-              <Translate contentKey="home.link.chat">JHipster public chat room</Translate>
-            </a>
-          </li>
-          <li>
-            <a href="https://twitter.com/jhipster" target="_blank" rel="noopener noreferrer">
-              <Translate contentKey="home.link.follow">follow @jhipster on Twitter</Translate>
-            </a>
-          </li>
-        </ul>
-
-        <p>
-          <Translate contentKey="home.like">If you like JHipster, do not forget to give us a star on</Translate>{' '}
-          <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
-          !
-        </p>
+        <hr />
+        <Alert color="info">
+          <Translate contentKey="home.logged.message" interpolate={{ username: account.login }}>
+            You are logged in as user {account.login}.
+          </Translate>
+        </Alert>
+        <Button color="primary" onClick={toggleModal}>
+          <Translate contentKey="home.createProject">Create Project</Translate>
+        </Button>
       </Col>
+
+      <Modal isOpen={modal} toggle={toggleModal}>
+        <ModalHeader toggle={toggleModal}>
+          <Translate contentKey="home.createProject">Create Project</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label for="projectName">
+                <Translate contentKey="home.projectName">Project Name</Translate>
+              </Label>
+              <Input type="text" name="projectName" id="projectName" value={projectName} onChange={handleProjectNameChange} required />
+            </FormGroup>
+            <FormGroup>
+              <Label for="issueType">
+                <Translate contentKey="home.issueType">Issue Type</Translate>
+              </Label>
+              <Input type="select" name="issueType" id="issueType" value={issueType} onChange={handleIssueTypeChange} required>
+                <option value="">-- Select Issue Type --</option>
+                <option value="bug">Bug</option>
+                <option value="feature">Feature</option>
+                <option value="task">Task</option>
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label for="workflow">
+                <Translate contentKey="home.workflow">Workflow</Translate>
+              </Label>
+              <Input type="select" name="workflow" id="workflow" value={workflow} onChange={handleWorkflowChange} required>
+                <option value="">-- Select Workflow --</option>
+                <option value="todo">To Do</option>
+                <option value="inprogress">In Progress</option>
+                <option value="done">Done</option>
+                <option value="review">In Review</option>
+              </Input>
+            </FormGroup>
+            <ModalFooter>
+              <Button color="primary" type="submit">
+                <Translate contentKey="entity.action.save">Save</Translate>
+              </Button>
+              <Button color="secondary" onClick={toggleModal}>
+                <Translate contentKey="entity.action.cancel">Cancel</Translate>
+              </Button>
+            </ModalFooter>
+          </Form>
+        </ModalBody>
+      </Modal>
     </Row>
   );
 };
