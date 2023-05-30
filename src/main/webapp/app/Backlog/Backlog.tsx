@@ -5,6 +5,8 @@ import { Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 const Backlog = () => {
   const [issueType, setIssueType] = useState('');
   const [description, setDescription] = useState('');
+  const [workflow, setWorkflow] = useState('');
+  const [backlogItems, setBacklogItems] = useState([]);
 
   const handleIssueTypeChange = event => {
     setIssueType(event.target.value);
@@ -14,8 +16,23 @@ const Backlog = () => {
     setDescription(event.target.value);
   };
 
+  const handleWorkflowChange = event => {
+    setWorkflow(event.target.value);
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
+
+    const backlogItem = {
+      issueType,
+      description,
+      workflow,
+    };
+
+    setBacklogItems([...backlogItems, backlogItem]);
+    setIssueType('');
+    setDescription('');
+    setWorkflow('');
   };
 
   return (
@@ -42,10 +59,37 @@ const Backlog = () => {
             </Label>
             <Input type="textarea" name="description" id="description" value={description} onChange={handleDescriptionChange} required />
           </FormGroup>
+          <FormGroup>
+            <Label for="workflow">
+              <Translate contentKey="backlog.workflow">Workflow</Translate>
+            </Label>
+            <Input type="select" name="workflow" id="workflow" value={workflow} onChange={handleWorkflowChange} required>
+              <option value="">-- Select Workflow --</option>
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="done">Done</option>
+              <option value="review">In Review</option>
+            </Input>
+          </FormGroup>
           <Button color="primary" type="submit">
             <Translate contentKey="backlog.save">Save</Translate>
           </Button>
         </Form>
+
+        <hr />
+
+        <h3>Backlog Items:</h3>
+        <ul>
+          {backlogItems.map((item, index) => (
+            <li key={index}>
+              <strong>Issue Type:</strong> {item.issueType}
+              <br />
+              <strong>Description:</strong> {item.description}
+              <br />
+              <strong>Workflow:</strong> {item.workflow}
+            </li>
+          ))}
+        </ul>
       </Col>
     </Row>
   );
