@@ -14,7 +14,7 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
-import CreateProjectPage from 'app/addProject/addProject';
+import Backlog from 'app/Backlog/Backlog';
 
 const loading = <div>loading ...</div>;
 
@@ -36,7 +36,6 @@ const AppRoutes = () => {
         <Route path="login" element={<Login />} />
         <Route path="logout" element={<Logout />} />
         <Route path="account">
-          <Route path="create-project" element={<CreateProjectPage />} />
           <Route
             path="*"
             element={
@@ -57,6 +56,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.ADMIN]}>
               <Admin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="backlog"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
+              <Backlog />
             </PrivateRoute>
           }
         />
