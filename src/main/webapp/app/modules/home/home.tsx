@@ -1,11 +1,11 @@
 import './home.scss';
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Translate } from 'react-jhipster';
 import { Row, Col, Alert, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from 'reactstrap';
 import { useAppSelector } from 'app/config/store';
-import { TranslatorContext, Storage } from 'react-jhipster';
+import { TranslatorContext } from 'react-jhipster';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Home = () => {
   const account = useAppSelector(state => state.authentication.account);
@@ -13,6 +13,7 @@ export const Home = () => {
   const [projectName, setProjectName] = useState('');
   const [issueType, setIssueType] = useState('');
   const [workflow, setWorkflow] = useState('');
+  const navigate = useNavigate();
 
   const toggleModal = () => {
     setModal(!modal);
@@ -32,6 +33,7 @@ export const Home = () => {
 
   const handleSubmit = event => {
     event.preventDefault();
+    navigate('/backlog');
 
     toggleModal();
   };
@@ -42,9 +44,6 @@ export const Home = () => {
         <h2>
           <Translate contentKey="home.title">Welcome, {account.login}!</Translate>
         </h2>
-        <p className="lead">
-          <Translate contentKey="home.subtitle">What would you like to do today?</Translate>
-        </p>
         <hr />
         <Alert color="info">
           <Translate contentKey="home.logged.message" interpolate={{ username: account.login }}>
@@ -105,5 +104,8 @@ export const Home = () => {
     </Row>
   );
 };
+
+TranslatorContext.setDefaultLocale('en');
+TranslatorContext.setRenderInnerTextForMissingKeys(false);
 
 export default Home;
