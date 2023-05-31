@@ -1,10 +1,13 @@
 package com.xxxweb.tasktracker.domain;
 
+import com.xxxweb.tasktracker.domain.enumeration.PriorityType;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,7 +17,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "issue")
-public class Issue {
+public class Issue extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +34,18 @@ public class Issue {
 
     @ManyToOne
     private User assigned;
+
+    @Enumerated(EnumType.STRING)
+    @javax.persistence.Column(name = "priority_type", nullable = false)
+    private PriorityType type;
+
+    public PriorityType getType() {
+        return type;
+    }
+
+    public void setType(PriorityType type) {
+        this.type = type;
+    }
 
     public User getAssigned() {
         return assigned;

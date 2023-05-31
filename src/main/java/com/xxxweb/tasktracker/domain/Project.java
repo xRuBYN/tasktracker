@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "project")
-public class Project {
+public class Project extends AbstractAuditingEntity<Long> {
 
     @Id
     @GeneratedValue
