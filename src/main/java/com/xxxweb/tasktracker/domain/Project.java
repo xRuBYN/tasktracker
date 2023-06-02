@@ -28,8 +28,7 @@ public class Project extends AbstractAuditingEntity<UUID> {
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @OneToOne
-    @JoinColumn(unique = true)
+    @ManyToOne
     private User user;
 
     @ManyToMany

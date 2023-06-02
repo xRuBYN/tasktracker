@@ -1,6 +1,7 @@
 package com.xxxweb.tasktracker.repository;
 
 import com.xxxweb.tasktracker.domain.Project;
+import com.xxxweb.tasktracker.domain.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,4 +30,8 @@ public interface ProjectRepository extends ProjectRepositoryWithBagRelationships
     default Page<Project> findAllWithEagerRelationships(Pageable pageable) {
         return this.fetchBagRelationships(this.findAll(pageable));
     }
+
+    List<Project> findAllByUsersContains(User user);
+
+    List<Project> findAllByUser(User user);
 }

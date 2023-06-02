@@ -11,6 +11,8 @@ public class IssueRequestDto {
     @NotNull
     private PriorityType priority;
 
+    private String description;
+
     public String getName() {
         return name;
     }
@@ -25,5 +27,13 @@ public class IssueRequestDto {
 
     public void setPriority(PriorityType priority) {
         this.priority = priority;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

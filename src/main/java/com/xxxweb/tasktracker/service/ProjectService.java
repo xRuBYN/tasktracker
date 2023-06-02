@@ -9,6 +9,7 @@ import com.xxxweb.tasktracker.service.mapper.ProjectMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -165,5 +166,17 @@ public class ProjectService {
         User user = userService.getUserById(userId);
         project.getUsers().remove(user);
         projectRepository.save(project);
+    }
+
+    public List<ProjectDTO> getAllAssignedProject() {
+        User user = userService.getCurrentUserByLogin();
+        List<Project> projects = projectRepository.findAllByUsersContains(user);
+        return projects.stream().map(projectMapper::toDto).collect(Collectors.toList());
+    }
+
+    public List<ProjectDTO> getOwnProject() {
+        User user = userService.getCurrentUserByLogin();
+        List<Project> projects = projectRepository.findAllByUser(user);
+        return projects.stream().map(projectMapper::toDto).collect(Collectors.toList());
     }
 }
