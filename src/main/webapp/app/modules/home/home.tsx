@@ -11,8 +11,7 @@ export const Home = () => {
   const account = useAppSelector(state => state.authentication.account);
   const [modal, setModal] = useState(false);
   const [projectName, setProjectName] = useState('');
-  const [issueType, setIssueType] = useState('');
-  const [workflow, setWorkflow] = useState('');
+  const [recentProjects, setRecentProjects] = useState([]);
   const navigate = useNavigate();
 
   const toggleModal = () => {
@@ -23,18 +22,13 @@ export const Home = () => {
     setProjectName(event.target.value);
   };
 
-  const handleIssueTypeChange = event => {
-    setIssueType(event.target.value);
-  };
-
-  const handleWorkflowChange = event => {
-    setWorkflow(event.target.value);
-  };
-
   const handleSubmit = event => {
     event.preventDefault();
+    const newProject = {
+      projectName,
+    };
+    setRecentProjects([newProject, ...recentProjects]);
     navigate('/backlog');
-
     toggleModal();
   };
 
@@ -54,7 +48,6 @@ export const Home = () => {
           <Translate contentKey="home.createProject">Create Project</Translate>
         </Button>
       </Col>
-
       <Modal isOpen={modal} toggle={toggleModal}>
         <ModalHeader toggle={toggleModal}>
           <Translate contentKey="home.createProject">Create Project</Translate>
@@ -67,29 +60,6 @@ export const Home = () => {
               </Label>
               <Input type="text" name="projectName" id="projectName" value={projectName} onChange={handleProjectNameChange} required />
             </FormGroup>
-            <FormGroup>
-              <Label for="issueType">
-                <Translate contentKey="home.issueType">Issue Type</Translate>
-              </Label>
-              <Input type="select" name="issueType" id="issueType" value={issueType} onChange={handleIssueTypeChange} required>
-                <option value="">-- Select Issue Type --</option>
-                <option value="bug">Bug</option>
-                <option value="feature">Feature</option>
-                <option value="task">Task</option>
-              </Input>
-            </FormGroup>
-            <FormGroup>
-              <Label for="workflow">
-                <Translate contentKey="home.workflow">Workflow</Translate>
-              </Label>
-              <Input type="select" name="workflow" id="workflow" value={workflow} onChange={handleWorkflowChange} required>
-                <option value="">-- Select Workflow --</option>
-                <option value="todo">To Do</option>
-                <option value="inprogress">In Progress</option>
-                <option value="done">Done</option>
-                <option value="review">In Review</option>
-              </Input>
-            </FormGroup>
             <ModalFooter>
               <Button color="primary" type="submit">
                 <Translate contentKey="entity.action.save">Save</Translate>
@@ -101,6 +71,19 @@ export const Home = () => {
           </Form>
         </ModalBody>
       </Modal>
+
+      <Col md="6">
+        <h3>
+          <Translate contentKey="home.recentProjects">Recent Projects</Translate>
+        </h3>
+        <ul>
+          {recentProjects.map((project, index) => (
+            <li key={index}>
+              <strong>Project Name:</strong> {project.projectName}
+            </li>
+          ))}
+        </ul>
+      </Col>
     </Row>
   );
 };
