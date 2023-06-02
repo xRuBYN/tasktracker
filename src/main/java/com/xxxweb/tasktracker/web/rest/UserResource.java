@@ -1,5 +1,7 @@
 package com.xxxweb.tasktracker.web.rest;
 
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
+
 import com.xxxweb.tasktracker.config.Constants;
 import com.xxxweb.tasktracker.domain.User;
 import com.xxxweb.tasktracker.repository.UserRepository;
@@ -7,6 +9,7 @@ import com.xxxweb.tasktracker.security.AuthoritiesConstants;
 import com.xxxweb.tasktracker.service.MailService;
 import com.xxxweb.tasktracker.service.UserService;
 import com.xxxweb.tasktracker.service.dto.AdminUserDTO;
+import com.xxxweb.tasktracker.service.dto.UserDTO;
 import com.xxxweb.tasktracker.web.rest.errors.BadRequestAlertException;
 import com.xxxweb.tasktracker.web.rest.errors.EmailAlreadyUsedException;
 import com.xxxweb.tasktracker.web.rest.errors.LoginAlreadyUsedException;
@@ -203,5 +206,13 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
         return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login)).build();
+    }
+
+    @GetMapping("/_search/users")
+    public ResponseEntity<List<UserDTO>> searchUsers(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of Users for query {}", query);
+        Page<UserDTO> page = userService.search(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

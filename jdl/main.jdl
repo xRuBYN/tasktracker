@@ -1,0 +1,61 @@
+entity Project {
+    id UUID
+    name String maxlength(50) minlength(3) required
+    createdDate	Instant	required
+    createdBy String maxlength(50) required
+    lastModifiedBy String maxlength(50)
+    lastModifiedDate Instant
+}
+
+relationship OneToOne {
+    Project{user} to User
+}
+
+relationship ManyToMany {
+    Project{users} to User{projects}
+}
+
+enum PriorityType {
+    LOWEST("Lowest"),
+    LOW("Low"),
+    MEDIUM("Medium"),
+    HIGH("High"),
+    HIGHEST("Highest")
+}
+
+
+entity ColumnEntity {
+    id UUID
+    name String maxlength(50) minlength(3) required
+    createdDate	Instant	required
+    createdBy String maxlength(50) required
+    lastModifiedBy String maxlength(50)
+    lastModifiedDate Instant
+}
+
+relationship ManyToOne {
+    ColumnEntity{project} to Project
+}
+
+entity Issue{
+    id UUID
+    name String maxlength(50) minlength(3) required
+    description String maxlength(255)
+    priority PriorityType
+    createdDate	Instant	required
+    createdBy String maxlength(50) required
+    lastModifiedBy String maxlength(50)
+    lastModifiedDate Instant
+}
+
+relationship ManyToOne {
+    Issue{column} to ColumnEntity
+}
+
+relationship ManyToOne {
+    Issue{assigned} to User
+}
+
+dto * with mapstruct
+service * with serviceClass
+paginate * with pagination

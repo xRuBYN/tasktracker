@@ -1,0 +1,29 @@
+{
+  "tasktrackerApp": {
+    "columnEntity": {
+      "home": {
+        "title": "Column Entities",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Column Entity",
+        "createOrEditLabel": "Create or edit a Column Entity",
+        "notFound": "No Column Entities found"
+      },
+      "created": "A new Column Entity is created with identifier {{ param }}",
+      "updated": "A Column Entity is updated with identifier {{ param }}",
+      "deleted": "A Column Entity is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Column Entity {{ id }}?"
+      },
+      "detail": {
+        "title": "Column Entity"
+      },
+      "id": "Id",
+      "name": "Name",
+      "createdDate": "Created Date",
+      "createdBy": "Created By",
+      "lastModifiedBy": "Last Modified By",
+      "lastModifiedDate": "Last Modified Date",
+      "project": "Project"
+    }
+  }
+}

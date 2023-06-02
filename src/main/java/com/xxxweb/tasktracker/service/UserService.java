@@ -1,12 +1,14 @@
 package com.xxxweb.tasktracker.service;
 
+import static com.xxxweb.tasktracker.security.SecurityUtils.getCurrentUserLogin;
+
 import com.xxxweb.tasktracker.config.Constants;
 import com.xxxweb.tasktracker.domain.Authority;
 import com.xxxweb.tasktracker.domain.User;
 import com.xxxweb.tasktracker.repository.AuthorityRepository;
 import com.xxxweb.tasktracker.repository.UserRepository;
 import com.xxxweb.tasktracker.security.AuthoritiesConstants;
-import com.xxxweb.tasktracker.security.SecurityUtils;
+import com.xxxweb.tasktracker.service.criteria.UserCriteria;
 import com.xxxweb.tasktracker.service.dto.AdminUserDTO;
 import com.xxxweb.tasktracker.service.dto.UserDTO;
 import java.time.Instant;
@@ -17,11 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import tech.jhipster.security.RandomUtil;
+import tech.jhipster.service.filter.StringFilter;
 
 /**
  * Service class for managing users.
@@ -38,10 +43,18 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
+    private final UserQueryService userQueryService;
+
+    public UserService(
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder,
+        AuthorityRepository authorityRepository,
+        UserQueryService userQueryService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.userQueryService = userQueryService;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -220,8 +233,7 @@ public class UserService {
      * @param imageUrl  image URL of user.
      */
     public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
-        SecurityUtils
-            .getCurrentUserLogin()
+        getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
                 user.setFirstName(firstName);
@@ -237,8 +249,7 @@ public class UserService {
 
     @Transactional
     public void changePassword(String currentClearTextPassword, String newPassword) {
-        SecurityUtils
-            .getCurrentUserLogin()
+        getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
                 String currentEncryptedPassword = user.getPassword();
@@ -268,7 +279,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+        return getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
     }
 
     /**
@@ -293,5 +304,33 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
+    }
+
+    public User getCurrentUserByLogin() {
+        User user = getCurrentUserLogin()
+            .flatMap(userRepository::findOneWithAuthoritiesByLogin)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        return user;
+    }
+
+    public User getUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return user.get();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    private static UserCriteria buildCriteria(String search) {
+        UserCriteria userCriteria = new UserCriteria();
+        userCriteria.setFirstName(new StringFilter().setContains(search));
+        userCriteria.setLastName(new StringFilter().setContains(search));
+        userCriteria.setEmail(new StringFilter().setContains(search));
+        return userCriteria;
+    }
+
+    public Page<UserDTO> search(String search, Pageable pageable) {
+        UserCriteria userCriteria = buildCriteria(search);
+        return userQueryService.findByOrCriteria(userCriteria, pageable).map(UserDTO::new);
     }
 }
