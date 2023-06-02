@@ -34,8 +34,6 @@ public class ProjectDTO implements Serializable {
 
     private UserDTO user;
 
-    private Set<UserDTO> users = new HashSet<>();
-
     public UUID getId() {
         return id;
     }
@@ -92,14 +90,6 @@ public class ProjectDTO implements Serializable {
         this.user = user;
     }
 
-    public Set<UserDTO> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<UserDTO> users) {
-        this.users = users;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -132,7 +122,6 @@ public class ProjectDTO implements Serializable {
             ", lastModifiedBy='" + getLastModifiedBy() + "'" +
             ", lastModifiedDate='" + getLastModifiedDate() + "'" +
             ", user=" + getUser() +
-            ", users=" + getUsers() +
             "}";
     }
 }

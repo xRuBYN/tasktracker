@@ -113,4 +113,11 @@ public class IssueService {
         issue.setAssigned(null);
         issueRepository.save(issue);
     }
+
+    public void editIssue(IssueRequestDto issueDto, UUID issueId) {
+        Issue issue = getIssueById(issueId);
+        issue.setName(issue.getName());
+        issue.setDescription(issueDto.getDescription());
+        issueRepository.save(issue);
+    }
 }

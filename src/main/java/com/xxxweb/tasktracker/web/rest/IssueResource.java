@@ -73,7 +73,7 @@ public class IssueResource {
         return ResponseEntity.ok(issueService.getAllIssuesByColumnId(columnId));
     }
 
-    @DeleteMapping("/issue/{id}")
+    @GetMapping("/issue/{id}")
     public ResponseEntity<IssueDTO> getIssue(@PathVariable UUID id) {
         log.debug("REST request to get Issue : {}", id);
         IssueDTO issueDTO = issueService.getIssue(id);
@@ -101,6 +101,12 @@ public class IssueResource {
     @PutMapping("/issue/assign/remove/{issueId}")
     public ResponseEntity<Void> removeAssigned(@PathVariable UUID issueId) {
         issueService.removeAssigned(issueId);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
+    }
+
+    @PutMapping("/issue/edit/{issueId}")
+    public ResponseEntity<Void> editIssue(@RequestBody IssueRequestDto dto, @PathVariable UUID issueId) {
+        issueService.editIssue(dto, issueId);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
     }
 }

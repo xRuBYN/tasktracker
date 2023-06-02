@@ -222,4 +222,14 @@ public class ProjectResource {
         projectService.deleteUserFromProject(projectId, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/projects")
+    public ResponseEntity<List<ProjectDTO>> getUserProjects() {
+        return ResponseEntity.ok(projectService.getAllAssignedProject());
+    }
+
+    @GetMapping("/user/projects/me")
+    public ResponseEntity<List<ProjectDTO>> getOwnProjects() {
+        return ResponseEntity.ok(projectService.getOwnProject());
+    }
 }
