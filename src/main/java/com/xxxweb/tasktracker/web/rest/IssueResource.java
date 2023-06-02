@@ -3,6 +3,8 @@ package com.xxxweb.tasktracker.web.rest;
 import com.xxxweb.tasktracker.repository.IssueRepository;
 import com.xxxweb.tasktracker.service.IssueService;
 import com.xxxweb.tasktracker.service.dto.IssueDTO;
+import com.xxxweb.tasktracker.service.dto.IssueRequestDto;
+import com.xxxweb.tasktracker.service.dto.MoveIssueDto;
 import com.xxxweb.tasktracker.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -42,136 +43,21 @@ public class IssueResource {
 
     private final IssueService issueService;
 
-    private final IssueRepository issueRepository;
-
-    public IssueResource(IssueService issueService, IssueRepository issueRepository) {
+    public IssueResource(IssueService issueService) {
         this.issueService = issueService;
-        this.issueRepository = issueRepository;
     }
 
-    /**
-     * {@code POST  /issues} : Create a new issue.
-     *
-     * @param issueDTO the issueDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new issueDTO, or with status {@code 400 (Bad Request)} if the issue has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PostMapping("/issues")
-    public ResponseEntity<IssueDTO> createIssue(@Valid @RequestBody IssueDTO issueDTO) throws URISyntaxException {
+    @PostMapping("/issue/{columnId}")
+    public ResponseEntity<IssueDTO> createIssue(@Valid @RequestBody IssueRequestDto issueDTO, @PathVariable UUID columnId)
+        throws URISyntaxException {
         log.debug("REST request to save Issue : {}", issueDTO);
-        if (issueDTO.getId() != null) {
-            throw new BadRequestAlertException("A new issue cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        IssueDTO result = issueService.save(issueDTO);
+        IssueDTO result = issueService.save(issueDTO, columnId);
         return ResponseEntity
             .created(new URI("/api/issues/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
-    /**
-     * {@code PUT  /issues/:id} : Updates an existing issue.
-     *
-     * @param id the id of the issueDTO to save.
-     * @param issueDTO the issueDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated issueDTO,
-     * or with status {@code 400 (Bad Request)} if the issueDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the issueDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PutMapping("/issues/{id}")
-    public ResponseEntity<IssueDTO> updateIssue(
-        @PathVariable(value = "id", required = false) final UUID id,
-        @Valid @RequestBody IssueDTO issueDTO
-    ) throws URISyntaxException {
-        log.debug("REST request to update Issue : {}, {}", id, issueDTO);
-        if (issueDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, issueDTO.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!issueRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        IssueDTO result = issueService.update(issueDTO);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, issueDTO.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * {@code PATCH  /issues/:id} : Partial updates given fields of an existing issue, field will ignore if it is null
-     *
-     * @param id the id of the issueDTO to save.
-     * @param issueDTO the issueDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated issueDTO,
-     * or with status {@code 400 (Bad Request)} if the issueDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the issueDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the issueDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PatchMapping(value = "/issues/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<IssueDTO> partialUpdateIssue(
-        @PathVariable(value = "id", required = false) final UUID id,
-        @NotNull @RequestBody IssueDTO issueDTO
-    ) throws URISyntaxException {
-        log.debug("REST request to partial update Issue partially : {}, {}", id, issueDTO);
-        if (issueDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, issueDTO.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!issueRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Optional<IssueDTO> result = issueService.partialUpdate(issueDTO);
-
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, issueDTO.getId().toString())
-        );
-    }
-
-    /**
-     * {@code GET  /issues} : get all the issues.
-     *
-     * @param pageable the pagination information.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of issues in body.
-     */
-    @GetMapping("/issues")
-    public ResponseEntity<List<IssueDTO>> getAllIssues(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
-        log.debug("REST request to get a page of Issues");
-        Page<IssueDTO> page = issueService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    /**
-     * {@code GET  /issues/:id} : get the "id" issue.
-     *
-     * @param id the id of the issueDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the issueDTO, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/issues/{id}")
-    public ResponseEntity<IssueDTO> getIssue(@PathVariable UUID id) {
-        log.debug("REST request to get Issue : {}", id);
-        Optional<IssueDTO> issueDTO = issueService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(issueDTO);
-    }
-
-    /**
-     * {@code DELETE  /issues/:id} : delete the "id" issue.
-     *
-     * @param id the id of the issueDTO to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
     @DeleteMapping("/issues/{id}")
     public ResponseEntity<Void> deleteIssue(@PathVariable UUID id) {
         log.debug("REST request to delete Issue : {}", id);
@@ -180,5 +66,41 @@ public class IssueResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/issues/{columnId}")
+    public ResponseEntity<List<IssueDTO>> getAllIssuesByColumn(@PathVariable UUID columnId) {
+        return ResponseEntity.ok(issueService.getAllIssuesByColumnId(columnId));
+    }
+
+    @DeleteMapping("/issue/{id}")
+    public ResponseEntity<IssueDTO> getIssue(@PathVariable UUID id) {
+        log.debug("REST request to get Issue : {}", id);
+        IssueDTO issueDTO = issueService.getIssue(id);
+        return ResponseEntity.ok(issueDTO);
+    }
+
+    @PutMapping("/issue/move")
+    public ResponseEntity<Void> moveIssue(@RequestBody MoveIssueDto moveIssueDto) {
+        issueService.moveIssue(moveIssueDto);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
+    }
+
+    @PutMapping("/issue/assignme/{issueId}")
+    public ResponseEntity<Void> assignMe(@PathVariable UUID issueId) {
+        issueService.assignMe(issueId);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
+    }
+
+    @PutMapping("/issue/assign/{issueId}/{userId}")
+    public ResponseEntity<Void> assignUser(@PathVariable UUID issueId, @PathVariable Long userId) {
+        issueService.assignUser(issueId, userId);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
+    }
+
+    @PutMapping("/issue/assign/remove/{issueId}")
+    public ResponseEntity<Void> removeAssigned(@PathVariable UUID issueId) {
+        issueService.removeAssigned(issueId);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
     }
 }

@@ -1,11 +1,10 @@
 package com.xxxweb.tasktracker.service;
 
-import com.xxxweb.tasktracker.domain.Board;
 import com.xxxweb.tasktracker.domain.Project;
 import com.xxxweb.tasktracker.domain.User;
 import com.xxxweb.tasktracker.repository.ProjectRepository;
-import com.xxxweb.tasktracker.service.dto.BoardDTO;
 import com.xxxweb.tasktracker.service.dto.ProjectDTO;
+import com.xxxweb.tasktracker.service.dto.ProjectRequestDto;
 import com.xxxweb.tasktracker.service.mapper.ProjectMapper;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
  * Service Implementation for managing {@link Project}.
  */
 @Service
+@Transactional
 public class ProjectService {
 
     private final Logger log = LoggerFactory.getLogger(ProjectService.class);
@@ -33,18 +33,10 @@ public class ProjectService {
 
     private final UserService userService;
 
-    private final BoardService boardService;
-
-    public ProjectService(
-        ProjectRepository projectRepository,
-        ProjectMapper projectMapper,
-        UserService userService,
-        BoardService boardService
-    ) {
+    public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
         this.userService = userService;
-        this.boardService = boardService;
     }
 
     /**
@@ -136,18 +128,13 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
-    @Transactional
-    public ProjectDTO createProject(ProjectDTO projectDTO) {
+    public ProjectDTO createProject(ProjectRequestDto projectDTO) {
         User user = userService.getCurrentUserByLogin();
-        BoardDTO board = new BoardDTO();
-        board.setName(projectDTO.getName());
-        Board savedBoard = boardService.save(board);
         Project project = new Project();
         project.setName(projectDTO.getName());
         project.setUser(user);
-        project.setBoard(savedBoard);
-        Project saved = projectRepository.save(project);
-        return projectMapper.toDto(saved);
+        projectRepository.save(project);
+        return projectMapper.toDto(project);
     }
 
     public Project getProjectById(UUID id) {
@@ -158,7 +145,7 @@ public class ProjectService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
-    public Project editProjectName(ProjectDTO projectDTO, UUID id) {
+    public Project editProjectName(ProjectRequestDto projectDTO, UUID id) {
         Project project = getProjectById(id);
         project.setName(projectDTO.getName());
         return projectRepository.save(project);

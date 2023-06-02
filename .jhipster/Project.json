@@ -51,12 +51,6 @@
       "relationshipType": "one-to-one"
     },
     {
-      "otherEntityName": "board",
-      "ownerSide": true,
-      "relationshipName": "board",
-      "relationshipType": "one-to-one"
-    },
-    {
       "otherEntityName": "user",
       "otherEntityRelationshipName": "projects",
       "ownerSide": true,

@@ -71,9 +71,9 @@ export const ColumnEntityDetail = () => {
             ) : null}
           </dd>
           <dt>
-            <Translate contentKey="tasktrackerApp.columnEntity.board">Board</Translate>
+            <Translate contentKey="tasktrackerApp.columnEntity.project">Project</Translate>
           </dt>
-          <dd>{columnEntityEntity.board ? columnEntityEntity.board.id : ''}</dd>
+          <dd>{columnEntityEntity.project ? columnEntityEntity.project.id : ''}</dd>
         </dl>
         <Button tag={Link} to="/column-entity" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

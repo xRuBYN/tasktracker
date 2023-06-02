@@ -36,7 +36,7 @@
                 <constraints nullable="true" />
             </column>
             <column name="column_id" type="${uuidType}">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
             <column name="assigned_id" type="bigint">
                 <constraints nullable="true" />

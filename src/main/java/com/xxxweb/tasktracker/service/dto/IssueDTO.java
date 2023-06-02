@@ -36,8 +36,6 @@ public class IssueDTO implements Serializable {
 
     private Instant lastModifiedDate;
 
-    private ColumnEntityDTO column;
-
     private UserDTO assigned;
 
     public UUID getId() {
@@ -104,14 +102,6 @@ public class IssueDTO implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public ColumnEntityDTO getColumn() {
-        return column;
-    }
-
-    public void setColumn(ColumnEntityDTO column) {
-        this.column = column;
-    }
-
     public UserDTO getAssigned() {
         return assigned;
     }
@@ -153,7 +143,6 @@ public class IssueDTO implements Serializable {
             ", createdBy='" + getCreatedBy() + "'" +
             ", lastModifiedBy='" + getLastModifiedBy() + "'" +
             ", lastModifiedDate='" + getLastModifiedDate() + "'" +
-            ", column=" + getColumn() +
             ", assigned=" + getAssigned() +
             "}";
     }

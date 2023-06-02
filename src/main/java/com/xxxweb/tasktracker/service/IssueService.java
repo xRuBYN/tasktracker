@@ -1,17 +1,23 @@
 package com.xxxweb.tasktracker.service;
 
+import com.xxxweb.tasktracker.domain.ColumnEntity;
 import com.xxxweb.tasktracker.domain.Issue;
+import com.xxxweb.tasktracker.domain.User;
 import com.xxxweb.tasktracker.repository.IssueRepository;
 import com.xxxweb.tasktracker.service.dto.IssueDTO;
+import com.xxxweb.tasktracker.service.dto.IssueRequestDto;
+import com.xxxweb.tasktracker.service.dto.MoveIssueDto;
 import com.xxxweb.tasktracker.service.mapper.IssueMapper;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service Implementation for managing {@link Issue}.
@@ -26,88 +32,85 @@ public class IssueService {
 
     private final IssueMapper issueMapper;
 
-    public IssueService(IssueRepository issueRepository, IssueMapper issueMapper) {
+    private final ColumnEntityService columnEntityService;
+
+    private final UserService userService;
+
+    public IssueService(
+        IssueRepository issueRepository,
+        IssueMapper issueMapper,
+        ColumnEntityService columnEntityService,
+        UserService userService
+    ) {
         this.issueRepository = issueRepository;
         this.issueMapper = issueMapper;
+        this.columnEntityService = columnEntityService;
+        this.userService = userService;
     }
 
-    /**
-     * Save a issue.
-     *
-     * @param issueDTO the entity to save.
-     * @return the persisted entity.
-     */
-    public IssueDTO save(IssueDTO issueDTO) {
+    public IssueDTO save(IssueRequestDto issueDTO, UUID columnId) {
+        ColumnEntity column = columnEntityService.getColumnEntityById(columnId);
         log.debug("Request to save Issue : {}", issueDTO);
-        Issue issue = issueMapper.toEntity(issueDTO);
-        issue = issueRepository.save(issue);
-        return issueMapper.toDto(issue);
+        Issue issue = new Issue();
+        issue.setColumn(column);
+        issue.setName(issueDTO.getName());
+        issue.setPriority(issueDTO.getPriority());
+        Issue savedIssue = issueRepository.save(issue);
+        return issueMapper.toDto(savedIssue);
     }
 
-    /**
-     * Update a issue.
-     *
-     * @param issueDTO the entity to save.
-     * @return the persisted entity.
-     */
-    public IssueDTO update(IssueDTO issueDTO) {
-        log.debug("Request to update Issue : {}", issueDTO);
-        Issue issue = issueMapper.toEntity(issueDTO);
-        issue = issueRepository.save(issue);
-        return issueMapper.toDto(issue);
-    }
-
-    /**
-     * Partially update a issue.
-     *
-     * @param issueDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    public Optional<IssueDTO> partialUpdate(IssueDTO issueDTO) {
-        log.debug("Request to partially update Issue : {}", issueDTO);
-
-        return issueRepository
-            .findById(issueDTO.getId())
-            .map(existingIssue -> {
-                issueMapper.partialUpdate(existingIssue, issueDTO);
-
-                return existingIssue;
-            })
-            .map(issueRepository::save)
-            .map(issueMapper::toDto);
-    }
-
-    /**
-     * Get all the issues.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public Page<IssueDTO> findAll(Pageable pageable) {
-        log.debug("Request to get all Issues");
-        return issueRepository.findAll(pageable).map(issueMapper::toDto);
-    }
-
-    /**
-     * Get one issue by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
-    @Transactional(readOnly = true)
-    public Optional<IssueDTO> findOne(UUID id) {
-        log.debug("Request to get Issue : {}", id);
-        return issueRepository.findById(id).map(issueMapper::toDto);
-    }
-
-    /**
-     * Delete the issue by id.
-     *
-     * @param id the id of the entity.
-     */
     public void delete(UUID id) {
         log.debug("Request to delete Issue : {}", id);
         issueRepository.deleteById(id);
+    }
+
+    public Issue getIssueById(UUID id) {
+        Optional<Issue> issue = issueRepository.findById(id);
+        if (issue.isPresent()) {
+            return issue.get();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    public IssueDTO getIssue(UUID id) {
+        Issue issue = getIssueById(id);
+        return issueMapper.toDto(issue);
+    }
+
+    public List<IssueDTO> getAllIssuesByColumnId(UUID columnId) {
+        log.debug("Request to get All Issue by Column.");
+        List<Issue> issues = issueRepository.findAllByColumnId(columnId);
+        return issues.stream().map(issueMapper::toDto).collect(Collectors.toList());
+    }
+
+    public void moveIssue(MoveIssueDto moveIssueDto) {
+        log.debug("Request to move Issue.");
+        ColumnEntity newColumn = columnEntityService.getColumnEntityById(moveIssueDto.getNewColumnId());
+        Issue issue = getIssueById(moveIssueDto.getIssueId());
+        issue.setColumn(newColumn);
+        issueRepository.save(issue);
+    }
+
+    public void assignMe(UUID issueId) {
+        log.debug("Request to assign me to Issue.");
+        Issue issue = getIssueById(issueId);
+        User user = userService.getCurrentUserByLogin();
+        issue.setAssigned(user);
+        issueRepository.save(issue);
+    }
+
+    public void assignUser(UUID issueId, Long userId) {
+        log.debug("Request to assign me to Issue.");
+        Issue issue = getIssueById(issueId);
+        User user = userService.getUserById(userId);
+        issue.setAssigned(user);
+        issueRepository.save(issue);
+    }
+
+    public void removeAssigned(UUID issueId) {
+        log.debug("Request to assign me to Issue.");
+        Issue issue = getIssueById(issueId);
+        issue.setAssigned(null);
+        issueRepository.save(issue);
     }
 }

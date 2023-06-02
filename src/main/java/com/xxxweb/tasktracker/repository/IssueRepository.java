@@ -14,4 +14,6 @@ import org.springframework.stereotype.Repository;
 public interface IssueRepository extends JpaRepository<Issue, UUID> {
     @Query("select issue from Issue issue where issue.assigned.login = ?#{principal.username}")
     List<Issue> findByAssignedIsCurrentUser();
+
+    List<Issue> findAllByColumnId(UUID id);
 }

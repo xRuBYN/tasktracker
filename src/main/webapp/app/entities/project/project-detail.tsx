@@ -73,10 +73,6 @@ export const ProjectDetail = () => {
           </dt>
           <dd>{projectEntity.user ? projectEntity.user.id : ''}</dd>
           <dt>
-            <Translate contentKey="tasktrackerApp.project.board">Board</Translate>
-          </dt>
-          <dd>{projectEntity.board ? projectEntity.board.id : ''}</dd>
-          <dt>
             <Translate contentKey="tasktrackerApp.project.users">Users</Translate>
           </dt>
           <dd>

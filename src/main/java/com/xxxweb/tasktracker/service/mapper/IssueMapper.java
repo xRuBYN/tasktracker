@@ -13,14 +13,8 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface IssueMapper extends EntityMapper<IssueDTO, Issue> {
-    @Mapping(target = "column", source = "column", qualifiedByName = "columnEntityId")
     @Mapping(target = "assigned", source = "assigned", qualifiedByName = "userId")
     IssueDTO toDto(Issue s);
-
-    @Named("columnEntityId")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    ColumnEntityDTO toDtoColumnEntityId(ColumnEntity columnEntity);
 
     @Named("userId")
     @BeanMapping(ignoreByDefault = true)

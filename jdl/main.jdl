@@ -24,19 +24,6 @@ enum PriorityType {
 }
 
 
-entity Board {
-    id UUID,
-    name String maxlength(50) minlength(3) required
-    createdDate	Instant	required
-    createdBy String maxlength(50) required
-    lastModifiedBy String maxlength(50)
-    lastModifiedDate Instant
-}
-
-relationship OneToOne {
-    Project{board} to Board
-}
-
 entity ColumnEntity {
     id UUID
     name String maxlength(50) minlength(3) required
@@ -47,7 +34,7 @@ entity ColumnEntity {
 }
 
 relationship ManyToOne {
-    ColumnEntity{board} to Board
+    ColumnEntity{project} to Project
 }
 
 entity Issue{

@@ -14,12 +14,6 @@
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"/>
 
-        <addForeignKeyConstraint baseColumnNames="board_id"
-                                 baseTableName="project"
-                                 constraintName="fk_project__board_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="board"/>
-
         <addForeignKeyConstraint baseColumnNames="project_id"
                                  baseTableName="rel_project__users"
                                  constraintName="fk_rel_project__users__project_id"

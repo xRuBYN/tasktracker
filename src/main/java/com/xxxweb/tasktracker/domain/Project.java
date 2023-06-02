@@ -28,29 +28,9 @@ public class Project extends AbstractAuditingEntity<UUID> {
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @NotNull
-    @Column(name = "created_date", nullable = false)
-    private Instant createdDate;
-
-    @NotNull
-    @Size(max = 50)
-    @Column(name = "created_by", length = 50, nullable = false)
-    private String createdBy;
-
-    @Size(max = 50)
-    @Column(name = "last_modified_by", length = 50)
-    private String lastModifiedBy;
-
-    @Column(name = "last_modified_date")
-    private Instant lastModifiedDate;
-
     @OneToOne
     @JoinColumn(unique = true)
     private User user;
-
-    @OneToOne
-    @JoinColumn(unique = true)
-    private Board board;
 
     @ManyToMany
     @JoinTable(
@@ -88,58 +68,6 @@ public class Project extends AbstractAuditingEntity<UUID> {
         this.name = name;
     }
 
-    public Instant getCreatedDate() {
-        return this.createdDate;
-    }
-
-    public Project createdDate(Instant createdDate) {
-        this.setCreatedDate(createdDate);
-        return this;
-    }
-
-    public void setCreatedDate(Instant createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public Project createdBy(String createdBy) {
-        this.setCreatedBy(createdBy);
-        return this;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getLastModifiedBy() {
-        return this.lastModifiedBy;
-    }
-
-    public Project lastModifiedBy(String lastModifiedBy) {
-        this.setLastModifiedBy(lastModifiedBy);
-        return this;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public Instant getLastModifiedDate() {
-        return this.lastModifiedDate;
-    }
-
-    public Project lastModifiedDate(Instant lastModifiedDate) {
-        this.setLastModifiedDate(lastModifiedDate);
-        return this;
-    }
-
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
     public User getUser() {
         return this.user;
     }
@@ -150,19 +78,6 @@ public class Project extends AbstractAuditingEntity<UUID> {
 
     public Project user(User user) {
         this.setUser(user);
-        return this;
-    }
-
-    public Board getBoard() {
-        return this.board;
-    }
-
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    public Project board(Board board) {
-        this.setBoard(board);
         return this;
     }
 

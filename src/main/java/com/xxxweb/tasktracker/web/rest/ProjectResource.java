@@ -4,6 +4,7 @@ import com.xxxweb.tasktracker.domain.Project;
 import com.xxxweb.tasktracker.repository.ProjectRepository;
 import com.xxxweb.tasktracker.service.ProjectService;
 import com.xxxweb.tasktracker.service.dto.ProjectDTO;
+import com.xxxweb.tasktracker.service.dto.ProjectRequestDto;
 import com.xxxweb.tasktracker.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -57,7 +58,7 @@ public class ProjectResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new projectDTO, or with status {@code 400 (Bad Request)} if the project has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    //    @PostMapping("/project")
+    //    @PostMapping("/projects")
     //    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) throws URISyntaxException {
     //        log.debug("REST request to save Project : {}", projectDTO);
     //        if (projectDTO.getId() != null) {
@@ -65,7 +66,7 @@ public class ProjectResource {
     //        }
     //        ProjectDTO result = projectService.save(projectDTO);
     //        return ResponseEntity
-    //            .created(new URI("/api/project/" + result.getId()))
+    //            .created(new URI("/api/projects/" + result.getId()))
     //            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
     //            .body(result);
     //    }
@@ -193,7 +194,7 @@ public class ProjectResource {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) {
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectRequestDto projectDTO) {
         ProjectDTO project = projectService.createProject(projectDTO);
         return ResponseEntity.ok(project);
     }
@@ -205,7 +206,7 @@ public class ProjectResource {
     }
 
     @PutMapping("/edit/{projectId}")
-    public ResponseEntity<Project> editProject(@RequestBody ProjectDTO projectDTO, @PathVariable UUID projectId) {
+    public ResponseEntity<Project> editProject(@RequestBody ProjectRequestDto projectDTO, @PathVariable UUID projectId) {
         Project project = projectService.editProjectName(projectDTO, projectId);
         return ResponseEntity.ok(project);
     }

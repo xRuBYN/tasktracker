@@ -8,8 +8,8 @@ import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateT
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-import { IBoard } from 'app/shared/model/board.model';
-import { getEntities as getBoards } from 'app/entities/board/board.reducer';
+import { IProject } from 'app/shared/model/project.model';
+import { getEntities as getProjects } from 'app/entities/project/project.reducer';
 import { IColumnEntity } from 'app/shared/model/column-entity.model';
 import { getEntity, updateEntity, createEntity, reset } from './column-entity.reducer';
 
@@ -21,7 +21,7 @@ export const ColumnEntityUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const boards = useAppSelector(state => state.board.entities);
+  const projects = useAppSelector(state => state.project.entities);
   const columnEntityEntity = useAppSelector(state => state.columnEntity.entity);
   const loading = useAppSelector(state => state.columnEntity.loading);
   const updating = useAppSelector(state => state.columnEntity.updating);
@@ -38,7 +38,7 @@ export const ColumnEntityUpdate = () => {
       dispatch(getEntity(id));
     }
 
-    dispatch(getBoards({}));
+    dispatch(getProjects({}));
   }, []);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export const ColumnEntityUpdate = () => {
     const entity = {
       ...columnEntityEntity,
       ...values,
-      board: boards.find(it => it.id.toString() === values.board.toString()),
+      project: projects.find(it => it.id.toString() === values.project.toString()),
     };
 
     if (isNew) {
@@ -74,7 +74,7 @@ export const ColumnEntityUpdate = () => {
           ...columnEntityEntity,
           createdDate: convertDateTimeFromServer(columnEntityEntity.createdDate),
           lastModifiedDate: convertDateTimeFromServer(columnEntityEntity.lastModifiedDate),
-          board: columnEntityEntity?.board?.id,
+          project: columnEntityEntity?.project?.id,
         };
 
   return (
@@ -155,15 +155,15 @@ export const ColumnEntityUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
-                id="column-entity-board"
-                name="board"
-                data-cy="board"
-                label={translate('tasktrackerApp.columnEntity.board')}
+                id="column-entity-project"
+                name="project"
+                data-cy="project"
+                label={translate('tasktrackerApp.columnEntity.project')}
                 type="select"
               >
                 <option value="" key="0" />
-                {boards
-                  ? boards.map(otherEntity => (
+                {projects
+                  ? projects.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
                         {otherEntity.id}
                       </option>

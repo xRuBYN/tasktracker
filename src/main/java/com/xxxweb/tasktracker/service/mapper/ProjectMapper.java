@@ -1,9 +1,7 @@
 package com.xxxweb.tasktracker.service.mapper;
 
-import com.xxxweb.tasktracker.domain.Board;
 import com.xxxweb.tasktracker.domain.Project;
 import com.xxxweb.tasktracker.domain.User;
-import com.xxxweb.tasktracker.service.dto.BoardDTO;
 import com.xxxweb.tasktracker.service.dto.ProjectDTO;
 import com.xxxweb.tasktracker.service.dto.UserDTO;
 import java.util.Set;
@@ -15,8 +13,11 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface ProjectMapper extends EntityMapper<ProjectDTO, Project> {
+    @Mapping(target = "user", source = "user", qualifiedByName = "userId")
+    @Mapping(target = "users", source = "users", qualifiedByName = "userIdSet")
     ProjectDTO toDto(Project s);
 
+    @Mapping(target = "removeUsers", ignore = true)
     Project toEntity(ProjectDTO projectDTO);
 
     @Named("userId")
@@ -28,9 +29,4 @@ public interface ProjectMapper extends EntityMapper<ProjectDTO, Project> {
     default Set<UserDTO> toDtoUserIdSet(Set<User> user) {
         return user.stream().map(this::toDtoUserId).collect(Collectors.toSet());
     }
-
-    @Named("boardId")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    BoardDTO toDtoBoardId(Board board);
 }

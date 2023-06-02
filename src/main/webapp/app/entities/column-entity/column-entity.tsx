@@ -123,7 +123,7 @@ export const ColumnEntity = () => {
                   <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
-                  <Translate contentKey="tasktrackerApp.columnEntity.board">Board</Translate> <FontAwesomeIcon icon="sort" />
+                  <Translate contentKey="tasktrackerApp.columnEntity.project">Project</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -147,7 +147,7 @@ export const ColumnEntity = () => {
                       <TextFormat type="date" value={columnEntity.lastModifiedDate} format={APP_DATE_FORMAT} />
                     ) : null}
                   </td>
-                  <td>{columnEntity.board ? <Link to={`/board/${columnEntity.board.id}`}>{columnEntity.board.id}</Link> : ''}</td>
+                  <td>{columnEntity.project ? <Link to={`/project/${columnEntity.project.id}`}>{columnEntity.project.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`/column-entity/${columnEntity.id}`} color="info" size="sm" data-cy="entityDetailsButton">

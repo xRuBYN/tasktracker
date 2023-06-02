@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { IBoard } from 'app/shared/model/board.model';
+import { IProject } from 'app/shared/model/project.model';
 
 export interface IColumnEntity {
   id?: string;
@@ -8,7 +8,7 @@ export interface IColumnEntity {
   createdBy?: string;
   lastModifiedBy?: string | null;
   lastModifiedDate?: string | null;
-  board?: IBoard | null;
+  project?: IProject | null;
 }
 
 export const defaultValue: Readonly<IColumnEntity> = {};

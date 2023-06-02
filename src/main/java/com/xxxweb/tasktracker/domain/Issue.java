@@ -29,35 +29,57 @@ public class Issue extends AbstractAuditingEntity<UUID> {
     private String name;
 
     @Size(max = 255)
-    @Column(name = "description", length = 255)
+    @Column(name = "description")
     private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "priority")
     private PriorityType priority;
 
-    @NotNull
-    @Column(name = "created_date", nullable = false)
-    private Instant createdDate;
-
-    @NotNull
-    @Size(max = 50)
-    @Column(name = "created_by", length = 50, nullable = false)
-    private String createdBy;
-
-    @Size(max = 50)
-    @Column(name = "last_modified_by", length = 50)
-    private String lastModifiedBy;
-
-    @Column(name = "last_modified_date")
-    private Instant lastModifiedDate;
-
     @ManyToOne
-    @JsonIgnoreProperties(value = { "board" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "project" }, allowSetters = true)
     private ColumnEntity column;
 
     @ManyToOne
     private User assigned;
+
+    public static IssueBuilder builder() {
+        return new IssueBuilder();
+    }
+
+    public static class IssueBuilder {
+
+        private Issue issue = new Issue();
+
+        public IssueBuilder name(String name) {
+            issue.setName(name);
+            return this;
+        }
+
+        public IssueBuilder description(String description) {
+            issue.setDescription(description);
+            return this;
+        }
+
+        public IssueBuilder priority(PriorityType priority) {
+            issue.setPriority(priority);
+            return this;
+        }
+
+        public IssueBuilder column(ColumnEntity column) {
+            issue.setColumn(column);
+            return this;
+        }
+
+        public IssueBuilder assigned(User assigned) {
+            issue.setAssigned(assigned);
+            return this;
+        }
+
+        public Issue build() {
+            return issue;
+        }
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -111,58 +133,6 @@ public class Issue extends AbstractAuditingEntity<UUID> {
 
     public void setPriority(PriorityType priority) {
         this.priority = priority;
-    }
-
-    public Instant getCreatedDate() {
-        return this.createdDate;
-    }
-
-    public Issue createdDate(Instant createdDate) {
-        this.setCreatedDate(createdDate);
-        return this;
-    }
-
-    public void setCreatedDate(Instant createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public Issue createdBy(String createdBy) {
-        this.setCreatedBy(createdBy);
-        return this;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getLastModifiedBy() {
-        return this.lastModifiedBy;
-    }
-
-    public Issue lastModifiedBy(String lastModifiedBy) {
-        this.setLastModifiedBy(lastModifiedBy);
-        return this;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public Instant getLastModifiedDate() {
-        return this.lastModifiedDate;
-    }
-
-    public Issue lastModifiedDate(Instant lastModifiedDate) {
-        this.setLastModifiedDate(lastModifiedDate);
-        return this;
-    }
-
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
     }
 
     public ColumnEntity getColumn() {

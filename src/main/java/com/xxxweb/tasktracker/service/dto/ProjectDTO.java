@@ -2,7 +2,9 @@ package com.xxxweb.tasktracker.service.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import javax.validation.constraints.*;
 
@@ -29,6 +31,10 @@ public class ProjectDTO implements Serializable {
     private String lastModifiedBy;
 
     private Instant lastModifiedDate;
+
+    private UserDTO user;
+
+    private Set<UserDTO> users = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -78,6 +84,22 @@ public class ProjectDTO implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
+    public UserDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserDTO user) {
+        this.user = user;
+    }
+
+    public Set<UserDTO> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<UserDTO> users) {
+        this.users = users;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -109,6 +131,8 @@ public class ProjectDTO implements Serializable {
             ", createdBy='" + getCreatedBy() + "'" +
             ", lastModifiedBy='" + getLastModifiedBy() + "'" +
             ", lastModifiedDate='" + getLastModifiedDate() + "'" +
+            ", user=" + getUser() +
+            ", users=" + getUsers() +
             "}";
     }
 }

@@ -45,8 +45,8 @@
   "readOnly": false,
   "relationships": [
     {
-      "otherEntityName": "board",
-      "relationshipName": "board",
+      "otherEntityName": "project",
+      "relationshipName": "project",
       "relationshipType": "many-to-one"
     }
   ],

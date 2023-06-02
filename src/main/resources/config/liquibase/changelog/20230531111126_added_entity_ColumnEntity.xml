@@ -11,13 +11,13 @@
     -->
     <changeSet id="20230531111126-1" author="jhipster">
         <createTable tableName="column_entity">
-            <column name="id" type="uuid">
+            <column name="id" type="${uuidType}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
-            <column name="created_date" type="timestamp">
+            <column name="created_date" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
             <column name="created_by" type="varchar(50)">
@@ -26,10 +26,10 @@
             <column name="last_modified_by" type="varchar(50)">
                 <constraints nullable="true" />
             </column>
-            <column name="last_modified_date" type="timestamp">
+            <column name="last_modified_date" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
-            <column name="board_id" type="uuid">
+            <column name="project_id" type="${uuidType}">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

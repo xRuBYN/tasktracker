@@ -30,8 +30,6 @@ public class ColumnEntityDTO implements Serializable {
 
     private Instant lastModifiedDate;
 
-    private BoardDTO board;
-
     public UUID getId() {
         return id;
     }
@@ -80,13 +78,13 @@ public class ColumnEntityDTO implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public BoardDTO getBoard() {
-        return board;
-    }
-
-    public void setBoard(BoardDTO board) {
-        this.board = board;
-    }
+    //    public ProjectDTO getProject() {
+    //        return project;
+    //    }
+    //
+    //    public void setProject(ProjectDTO project) {
+    //        this.project = project;
+    //    }
 
     @Override
     public boolean equals(Object o) {
@@ -119,7 +117,7 @@ public class ColumnEntityDTO implements Serializable {
             ", createdBy='" + getCreatedBy() + "'" +
             ", lastModifiedBy='" + getLastModifiedBy() + "'" +
             ", lastModifiedDate='" + getLastModifiedDate() + "'" +
-            ", board=" + getBoard() +
+//            ", project=" + getProject() +
             "}";
     }
 }

@@ -124,9 +124,6 @@ export const Project = () => {
                 <th>
                   <Translate contentKey="tasktrackerApp.project.user">User</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
-                <th>
-                  <Translate contentKey="tasktrackerApp.project.board">Board</Translate> <FontAwesomeIcon icon="sort" />
-                </th>
                 <th />
               </tr>
             </thead>
@@ -146,7 +143,6 @@ export const Project = () => {
                     {project.lastModifiedDate ? <TextFormat type="date" value={project.lastModifiedDate} format={APP_DATE_FORMAT} /> : null}
                   </td>
                   <td>{project.user ? project.user.id : ''}</td>
-                  <td>{project.board ? <Link to={`/board/${project.board.id}`}>{project.board.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`/project/${project.id}`} color="info" size="sm" data-cy="entityDetailsButton">

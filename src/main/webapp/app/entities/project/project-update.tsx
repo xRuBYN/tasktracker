@@ -10,8 +10,6 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { IUser } from 'app/shared/model/user.model';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
-import { IBoard } from 'app/shared/model/board.model';
-import { getEntities as getBoards } from 'app/entities/board/board.reducer';
 import { IProject } from 'app/shared/model/project.model';
 import { getEntity, updateEntity, createEntity, reset } from './project.reducer';
 
@@ -24,7 +22,6 @@ export const ProjectUpdate = () => {
   const isNew = id === undefined;
 
   const users = useAppSelector(state => state.userManagement.users);
-  const boards = useAppSelector(state => state.board.entities);
   const projectEntity = useAppSelector(state => state.project.entity);
   const loading = useAppSelector(state => state.project.loading);
   const updating = useAppSelector(state => state.project.updating);
@@ -42,7 +39,6 @@ export const ProjectUpdate = () => {
     }
 
     dispatch(getUsers({}));
-    dispatch(getBoards({}));
   }, []);
 
   useEffect(() => {
@@ -60,7 +56,6 @@ export const ProjectUpdate = () => {
       ...values,
       users: mapIdList(values.users),
       user: users.find(it => it.id.toString() === values.user.toString()),
-      board: boards.find(it => it.id.toString() === values.board.toString()),
     };
 
     if (isNew) {
@@ -81,7 +76,6 @@ export const ProjectUpdate = () => {
           createdDate: convertDateTimeFromServer(projectEntity.createdDate),
           lastModifiedDate: convertDateTimeFromServer(projectEntity.lastModifiedDate),
           user: projectEntity?.user?.id,
-          board: projectEntity?.board?.id,
           users: projectEntity?.users?.map(e => e.id.toString()),
         };
 
@@ -166,22 +160,6 @@ export const ProjectUpdate = () => {
                 <option value="" key="0" />
                 {users
                   ? users.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
-              <ValidatedField
-                id="project-board"
-                name="board"
-                data-cy="board"
-                label={translate('tasktrackerApp.project.board')}
-                type="select"
-              >
-                <option value="" key="0" />
-                {boards
-                  ? boards.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
                         {otherEntity.id}
                       </option>
