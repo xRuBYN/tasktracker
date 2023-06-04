@@ -24,7 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @Service
 @Transactional
-public class ProjectService {
+public class ProjectService implements ProjectManager {
 
     private final Logger log = LoggerFactory.getLogger(ProjectService.class);
 
@@ -34,10 +34,18 @@ public class ProjectService {
 
     private final UserService userService;
 
-    public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService) {
+    private final MailService mailService;
+
+    public ProjectService(
+        ProjectRepository projectRepository,
+        ProjectMapper projectMapper,
+        UserService userService,
+        MailService mailService
+    ) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
         this.userService = userService;
+        this.mailService = mailService;
     }
 
     /**
@@ -157,6 +165,7 @@ public class ProjectService {
         userIds.forEach(id -> {
             User user = userService.getUserById(id);
             project.getUsers().add(user);
+            mailService.sendAssignToProjectEmail(user);
         });
         projectRepository.save(project);
     }
