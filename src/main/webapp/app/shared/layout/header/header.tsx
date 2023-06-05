@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Translate, Storage } from 'react-jhipster';
 import { Navbar, Nav, NavbarToggler, Collapse } from 'reactstrap';
 import LoadingBar from 'react-redux-loading-bar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTasks, faClipboardList } from '@fortawesome/free-solid-svg-icons';
 
 import { Home, Brand } from './header-components';
 import { AdminMenu, EntitiesMenu, AccountMenu, LocaleMenu } from '../menus';
@@ -42,8 +44,6 @@ const Header = (props: IHeaderProps) => {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  /* jhipster-needle-add-element-to-menu - JHipster will add new menu items here */
-
   return (
     <div id="app-header">
       {renderDevRibbon()}
@@ -51,11 +51,23 @@ const Header = (props: IHeaderProps) => {
       <Navbar data-cy="navbar" dark expand="md" fixed="top" className="jh-navbar">
         <Collapse isOpen={menuOpen} navbar>
           <Nav id="header-tabs" className="ms-auto" navbar>
-            <Home />
+            <Link to="/" className="nav-link">
+              <FontAwesomeIcon icon={faClipboardList} className="nav-name" />
+              <span>TaskTracker</span>
+            </Link>
 
-            {/*<Link to="/create-project" className="nav-link">*/}
-            {/*  Create Project*/}
-            {/*</Link>*/}
+            {props.isAuthenticated && (
+              <Link to="/backlog" className="nav-link">
+                <FontAwesomeIcon icon={faTasks} className="nav-icon" />
+                <span>Backlog</span>
+              </Link>
+            )}
+
+            <Link to="/board" className="nav-link">
+              <FontAwesomeIcon icon={faClipboardList} className="nav-name" />
+              <span>Board</span>
+            </Link>
+
             {props.isAuthenticated && <EntitiesMenu />}
             {props.isAuthenticated && props.isAdmin && <AdminMenu showOpenAPI={props.isOpenAPIEnabled} />}
             <LocaleMenu currentLocale={props.currentLocale} onClick={handleLocaleChange} />

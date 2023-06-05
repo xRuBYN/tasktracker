@@ -8,3 +8,116 @@ Main page styles
   background: url('../../../content/images/jhipster_family_member_1.svg') no-repeat center top;
   background-size: contain;
 }
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
+
+$primary-color: #0052cc;
+$secondary-color: #172b4d;
+$white-color: #ffffff;
+$black-color: #000000;
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: $black-color;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: $primary-color;
+  color: $white-color;
+  padding: 10px;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.header-subtitle {
+  font-size: 14px;
+}
+
+.header-button {
+  background-color: transparent;
+  border: none;
+  color: $white-color;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.sidebar {
+  background-color: $secondary-color;
+  color: $white-color;
+  width: 250px;
+  padding: 10px;
+}
+
+.sidebar-link {
+  display: block;
+  color: $white-color;
+  text-decoration: none;
+  padding: 10px;
+}
+
+.sidebar-link:hover {
+  background-color: lighten($secondary-color, 10%);
+}
+
+.main-content {
+  padding: 20px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.page-content {
+}
+
+.modal-header {
+  background-color: $primary-color;
+  color: $white-color;
+  border-bottom: none;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 20px;
+}
+
+.modal-footer .btn-primary {
+  background-color: $primary-color;
+  border-color: $primary-color;
+}
+
+.modal-footer .btn-secondary {
+  background-color: $white-color;
+  border-color: $white-color;
+  color: $black-color;
+}
+
+ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+li strong {
+  font-weight: bold;
+}

@@ -2,9 +2,7 @@ $header-color: #fff;
 $header-color-secondary: #bbb;
 $header-color-hover: darken($header-color, 20%);
 
-/* ==========================================================================
-Developement Ribbon
-========================================================================== */
+/* Developement Ribbon */
 .ribbon {
   background-color: rgba(170, 0, 0, 0.5);
   left: -3.5em;
@@ -34,9 +32,7 @@ Developement Ribbon
   }
 }
 
-/* ==========================================================================
-Navbar styles
-========================================================================== */
+/* Navbar styles */
 .jh-navbar {
   background-color: #353d47;
   padding: 0.2em 1em;
@@ -79,11 +75,6 @@ Navbar styles
   overflow: hidden;
 }
 
-.jh-navbar .navbar-nav .nav-link {
-  padding-right: 0;
-  padding-left: 0;
-}
-
 .navbar-version {
   font-size: 10px;
   color: $header-color-secondary;
@@ -119,4 +110,14 @@ Navbar styles
   position: absolute;
   top: 0px;
   z-index: 1031;
+}
+
+.nav-icon {
+  margin-right: 5px;
+  color: var(--bs-navbar-active-color);
+}
+
+.nav-name {
+  margin-right: auto;
+  color: var(--bs-navbar-active-color);
 }

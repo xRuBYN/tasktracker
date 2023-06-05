@@ -2,5 +2,6 @@
   "backlog.title": "Backlog",
   "backlog.issueType": "Issue Type",
   "backlog.description": "Description",
+  "backlog.workflow": "Workflow",
   "backlog.save": "Save"
 }

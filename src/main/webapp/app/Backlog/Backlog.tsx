@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Translate } from 'react-jhipster';
 import { Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
@@ -7,6 +7,17 @@ const Backlog = () => {
   const [description, setDescription] = useState('');
   const [workflow, setWorkflow] = useState('');
   const [backlogItems, setBacklogItems] = useState([]);
+
+  useEffect(() => {
+    const storedBacklogItems = localStorage.getItem('backlogItems');
+    if (storedBacklogItems) {
+      setBacklogItems(JSON.parse(storedBacklogItems));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('backlogItems', JSON.stringify(backlogItems));
+  }, [backlogItems]);
 
   const handleIssueTypeChange = event => {
     setIssueType(event.target.value);
@@ -20,9 +31,7 @@ const Backlog = () => {
     setWorkflow(event.target.value);
   };
 
-  const handleSubmit = event => {
-    event.preventDefault();
-
+  const handleAddToBoard = () => {
     const backlogItem = {
       issueType,
       description,
@@ -42,7 +51,7 @@ const Backlog = () => {
           <Translate contentKey="backlog.title">Backlog</Translate>
         </h2>
         <hr />
-        <Form onSubmit={handleSubmit}>
+        <Form>
           <FormGroup>
             <Label for="issueType">
               <Translate contentKey="backlog.issueType">Issue Type</Translate>
@@ -66,12 +75,10 @@ const Backlog = () => {
             <Input type="select" name="workflow" id="workflow" value={workflow} onChange={handleWorkflowChange} required>
               <option value="">-- Select Workflow --</option>
               <option value="todo">To Do</option>
-              <option value="inprogress">In Progress</option>
               <option value="done">Done</option>
-              <option value="review">In Review</option>
             </Input>
           </FormGroup>
-          <Button color="primary" type="submit">
+          <Button color="primary" type="button" onClick={handleAddToBoard}>
             <Translate contentKey="backlog.save">Save</Translate>
           </Button>
         </Form>
