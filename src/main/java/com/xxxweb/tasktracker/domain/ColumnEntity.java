@@ -2,6 +2,8 @@ package com.xxxweb.tasktracker.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -29,6 +31,17 @@ public class ColumnEntity extends AbstractAuditingEntity<UUID> {
     @ManyToOne
     @JsonIgnoreProperties(value = { "user", "users" }, allowSetters = true)
     private Project project;
+
+    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL)
+    private Set<Issue> issues = new HashSet<>();
+
+    public Set<Issue> getIssues() {
+        return issues;
+    }
+
+    public void setIssues(Set<Issue> issues) {
+        this.issues = issues;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 

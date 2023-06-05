@@ -39,7 +39,16 @@ public class Project extends AbstractAuditingEntity<UUID> {
     )
     private Set<User> users = new HashSet<>();
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    Set<ColumnEntity> columns = new HashSet<>();
+
+    public Set<ColumnEntity> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(Set<ColumnEntity> columns) {
+        this.columns = columns;
+    }
 
     public UUID getId() {
         return this.id;
