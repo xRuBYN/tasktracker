@@ -128,7 +128,13 @@ public class UserService {
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
         Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
+
+        //        Set<String> userAuthority = userDTO.getAuthorities();
+        //        for(String authority: userAuthority) {
+        //            authorityRepository.findById(authority).ifPresent(authorities::add);
+        //        }
+
+        authorityRepository.findById(AuthoritiesConstants.MANAGER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);

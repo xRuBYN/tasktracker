@@ -36,16 +36,20 @@ public class IssueService {
 
     private final UserService userService;
 
+    private final MailService mailService;
+
     public IssueService(
         IssueRepository issueRepository,
         IssueMapper issueMapper,
         ColumnEntityService columnEntityService,
-        UserService userService
+        UserService userService,
+        MailService mailService
     ) {
         this.issueRepository = issueRepository;
         this.issueMapper = issueMapper;
         this.columnEntityService = columnEntityService;
         this.userService = userService;
+        this.mailService = mailService;
     }
 
     public IssueDTO save(IssueRequestDto issueDTO, UUID columnId) {
@@ -95,6 +99,7 @@ public class IssueService {
         log.debug("Request to assign me to Issue.");
         Issue issue = getIssueById(issueId);
         User user = userService.getCurrentUserByLogin();
+        mailService.sendAssignToIssueEmail(user);
         issue.setAssigned(user);
         issueRepository.save(issue);
     }
@@ -103,6 +108,7 @@ public class IssueService {
         log.debug("Request to assign me to Issue.");
         Issue issue = getIssueById(issueId);
         User user = userService.getUserById(userId);
+        mailService.sendAssignToIssueEmail(user);
         issue.setAssigned(user);
         issueRepository.save(issue);
     }

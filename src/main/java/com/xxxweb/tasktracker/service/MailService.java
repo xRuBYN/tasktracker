@@ -109,4 +109,16 @@ public class MailService {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
     }
+
+    @Async
+    public void sendAssignToProjectEmail(User user) {
+        log.debug("Sending assign to project email '{}'", user.getEmail());
+        sendEmailFromTemplate(user, "mail/assigntoproject", "email.project.title");
+    }
+
+    @Async
+    public void sendAssignToIssueEmail(User user) {
+        log.debug("Sending assign to issue email '{}'", user.getEmail());
+        sendEmailFromTemplate(user, "mail/assignIssue", "email.issue.title");
+    }
 }
