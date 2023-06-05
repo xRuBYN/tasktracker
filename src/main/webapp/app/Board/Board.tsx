@@ -1,153 +1,100 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisV, faTrash } from '@fortawesome/free-solid-svg-icons';
-import './board.scss';
+import React, { useState } from 'react';
+import { Container, Button, Modal, Form } from 'react-bootstrap';
 
-const Board = () => {
-  const [toDoItems, setToDoItems] = useState([]);
-  const [doneItems, setDoneItems] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedItemIndex, setSelectedItemIndex] = useState(null);
+const MainPage: React.FC = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState(0);
 
-  const [dropdownOpenToDo, setDropdownOpenToDo] = useState(false);
-  const [dropdownOpenDone, setDropdownOpenDone] = useState(false);
-  const [selectedItemIndexToDo, setSelectedItemIndexToDo] = useState(null);
-  const [selectedItemIndexDone, setSelectedItemIndexDone] = useState(null);
-
-  useEffect(() => {
-    const storedToDoItems = localStorage.getItem('toDoItems');
-    const storedDoneItems = localStorage.getItem('doneItems');
-
-    if (storedToDoItems) {
-      setToDoItems(JSON.parse(storedToDoItems));
-    }
-
-    if (storedDoneItems) {
-      setDoneItems(JSON.parse(storedDoneItems));
-    }
-  }, []);
-
-  const addToDoItem = item => {
-    setToDoItems([...toDoItems, item]);
+  const handleShowModal = () => {
+    setShowModal(true);
   };
 
-  const addDoneItem = item => {
-    setDoneItems([...doneItems, item]);
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
-  useEffect(() => {
-    localStorage.setItem('toDoItems', JSON.stringify(toDoItems));
-  }, [toDoItems]);
+  const handleSearchUser = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/admin/_search/users?query=${username}&page=0&size=1`, {
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfVVNFUiIsImV4cCI6MTY4NTk2NTUwM30.A77yFmYEW7WBJihKr1B0vwzlNjYf7hyuCp8NNzvOd4aKBfYLXF3A1X2A7zC5dKVej4Fu6yJpZvgSvOJ95EIpNA',
+        },
+      });
 
-  useEffect(() => {
-    localStorage.setItem('doneItems', JSON.stringify(doneItems));
-  }, [doneItems]);
+      if (response.ok) {
+        const data = await response.json();
+        const user = data[0];
 
-  const [backlogItems, setBacklogItems] = useState([]);
-
-  useEffect(() => {
-    const storedBacklogItems = localStorage.getItem('backlogItems');
-    if (storedBacklogItems) {
-      setBacklogItems(JSON.parse(storedBacklogItems));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('backlogItems', JSON.stringify(backlogItems));
-  }, [backlogItems]);
-
-  useEffect(() => {
-    const toDoBacklogItems = backlogItems.filter(item => item.workflow === 'todo');
-    const doneBacklogItems = backlogItems.filter(item => item.workflow === 'done');
-    setToDoItems(toDoBacklogItems.map(item => item.description));
-    setDoneItems(doneBacklogItems.map(item => item.description));
-    localStorage.setItem('backlogItems', JSON.stringify(backlogItems));
-  }, [backlogItems]);
-
-  const toggleDropdown = (index, isToDoList) => {
-    if (isToDoList) {
-      setDropdownOpenToDo(!dropdownOpenToDo);
-      setSelectedItemIndexToDo(index);
-    } else {
-      setDropdownOpenDone(!dropdownOpenDone);
-      setSelectedItemIndexDone(index);
+        if (user) {
+          setUserId(user.id);
+        } else {
+          console.error('Utilizatorul nu a fost găsit');
+        }
+      } else {
+        console.error('A apărut o eroare la căutarea utilizatorului');
+      }
+    } catch (error) {
+      console.error('A apărut o eroare la căutarea utilizatorului:', error);
     }
   };
 
-  const deleteItem = isToDoList => {
-    if (isToDoList) {
-      const updatedToDoItems = [...toDoItems];
-      updatedToDoItems.splice(selectedItemIndexToDo, 1);
-      setToDoItems(updatedToDoItems);
-      setDropdownOpenToDo(false);
-      const updatedBacklogItems = backlogItems.filter(
-        item => item.workflow !== 'todo' || item.description !== toDoItems[selectedItemIndexToDo]
-      );
-      setBacklogItems(updatedBacklogItems);
-    } else {
-      const updatedDoneItems = [...doneItems];
-      updatedDoneItems.splice(selectedItemIndexDone, 1);
-      setDoneItems(updatedDoneItems);
-      setDropdownOpenDone(false);
-      const updatedBacklogItems = backlogItems.filter(
-        item => item.workflow !== 'done' || item.description !== doneItems[selectedItemIndexDone]
-      );
-      setBacklogItems(updatedBacklogItems);
+  const handleAddParticipant = async () => {
+    try {
+      const requestBody = [userId];
+      const accessToken =
+        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfVVNFUiIsImV4cCI6MTY4NTk2NTUwM30.A77yFmYEW7WBJihKr1B0vwzlNjYf7hyuCp8NNzvOd4aKBfYLXF3A1X2A7zC5dKVej4Fu6yJpZvgSvOJ95EIpNA';
+
+      const response = await fetch('http://localhost:8080/api/project/add/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: accessToken,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        console.log('Participantul a fost adăugat cu succes');
+      } else {
+        console.error('A apărut o eroare la adăugarea participantului');
+      }
+    } catch (error) {
+      console.error('A apărut o eroare la adăugarea participantului:', error);
     }
   };
 
   return (
     <Container>
-      <Row>
-        <Col>
-          <div className="p-3 mb-3 bg-light border">
-            <h4>To Do</h4>
-
-            <div>
-              {toDoItems.map((item, index) => (
-                <div key={index} className={`item-container to-do-container`}>
-                  {item}
-                  <Dropdown isOpen={dropdownOpenToDo && selectedItemIndexToDo === index} toggle={() => toggleDropdown(index, true)}>
-                    <DropdownToggle className="dropdown-toggle" tag="span">
-                      <FontAwesomeIcon icon={faEllipsisV} />
-                    </DropdownToggle>
-                    <DropdownMenu right>
-                      <DropdownItem onClick={deleteItem}>
-                        <FontAwesomeIcon icon={faTrash} /> Delete
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Col>
-        <Col>
-          <div className="p-3 mb-3 bg-light border">
-            <h4>Done</h4>
-            <div>
-              {doneItems.map((item, index) => (
-                <div key={index} className={`item-container done-container`}>
-                  {item}
-                  <Dropdown isOpen={dropdownOpenDone && selectedItemIndexDone === index} toggle={() => toggleDropdown(index, false)}>
-                    <DropdownToggle className="dropdown-toggle" tag="span">
-                      <FontAwesomeIcon icon={faEllipsisV} />
-                    </DropdownToggle>
-                    <DropdownMenu right>
-                      <DropdownItem onClick={() => deleteItem(false)}>
-                        <FontAwesomeIcon icon={faTrash} /> Delete
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Col>
-      </Row>
+      <h1>Board</h1>
+      <Button variant="primary" onClick={handleShowModal}>
+        Assign Person
+      </Button>
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add participant</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Name of user:</Form.Label>
+            <Form.Control type="text" placeholder="Enter name of user" value={username} onChange={e => setUsername(e.target.value)} />
+          </Form.Group>
+          <Button variant="primary" onClick={handleSearchUser}>
+            Search
+          </Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddParticipant}>
+            Add
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
 
-export default Board;
+export default MainPage;

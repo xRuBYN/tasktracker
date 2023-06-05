@@ -1,94 +1,149 @@
-import './home.scss';
-
-import React, { useState } from 'react';
-import { Translate } from 'react-jhipster';
-import { Row, Col, Alert, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from 'reactstrap';
-import { useAppSelector } from 'app/config/store';
-import { TranslatorContext } from 'react-jhipster';
-import { Link, useNavigate } from 'react-router-dom';
-
-export const Home = () => {
-  const account = useAppSelector(state => state.authentication.account);
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Button, Modal, Form, ListGroup, Dropdown } from 'react-bootstrap';
+import EditProjectModal from 'app/EditName/Edit';
+const Home = () => {
   const [modal, setModal] = useState(false);
   const [projectName, setProjectName] = useState('');
-  const [recentProjects, setRecentProjects] = useState([]);
-  const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  useEffect(() => {
+    // Fetch projects from localStorage on component mount
+    const storedProjects = localStorage.getItem('projects');
+    if (storedProjects) {
+      setProjects(JSON.parse(storedProjects));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Update localStorage when projects state changes
+    localStorage.setItem('projects', JSON.stringify(projects));
+  }, [projects]);
 
   const toggleModal = () => {
     setModal(!modal);
   };
 
-  const handleProjectNameChange = event => {
-    setProjectName(event.target.value);
-  };
-
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
-    const newProject = {
-      projectName,
-    };
-    setRecentProjects([newProject, ...recentProjects]);
-    navigate('/backlog');
-    toggleModal();
+
+    try {
+      const response = await fetch('http://localhost:8080/api/project/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: accessToken, // Utilizează variabila accessToken aici
+        },
+        body: JSON.stringify({
+          name: projectName,
+        }),
+      });
+
+      if (response.ok) {
+        const project = await response.json();
+        console.log('Project created:', project);
+        setProjects([...projects, project]); // Add the newly created project to the projects state
+        toggleModal();
+      } else {
+        console.error('Request failed with status:', response.status);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
 
+  const handleModifyProject = projectId => {
+    console.log('Modify project:', projectId);
+    const projectToEdit = projects.find(project => project.id === projectId);
+    if (projectToEdit) {
+      setSelectedProject(projectToEdit);
+      setEditModalOpen(true);
+    }
+  };
+
+  const handleProjectNameChange = event => {
+    setSelectedProject(prevProject => ({
+      ...prevProject,
+      name: event.target.value,
+    }));
+  };
+
+  const handleProjectUpdate = updatedProject => {
+    setProjects(prevProjects => {
+      const updatedProjects = prevProjects.map(project => (project.id === updatedProject.id ? updatedProject : project));
+      return updatedProjects;
+    });
+  };
+
+  const accessToken =
+    'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfVVNFUiIsImV4cCI6MTY4NTk2NTUwM30.A77yFmYEW7WBJihKr1B0vwzlNjYf7hyuCp8NNzvOd4aKBfYLXF3A1X2A7zC5dKVej4Fu6yJpZvgSvOJ95EIpNA';
   return (
-    <Row>
-      <Col md="6">
-        <h2>
-          <Translate contentKey="home.title">Welcome, {account.login}!</Translate>
-        </h2>
-        <hr />
-        <Alert color="info">
-          <Translate contentKey="home.logged.message" interpolate={{ username: account.login }}>
-            You are logged in as user {account.login}.
-          </Translate>
-        </Alert>
-        <Button color="primary" onClick={toggleModal}>
-          <Translate contentKey="home.createProject">Create Project</Translate>
-        </Button>
-      </Col>
-      <Modal isOpen={modal} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>
-          <Translate contentKey="home.createProject">Create Project</Translate>
-        </ModalHeader>
-        <ModalBody>
+    <Container>
+      <Row>
+        <Col md="6">
+          <h2>Welcome!</h2>
+          <hr />
+          <Button variant="primary" onClick={toggleModal}>
+            Create Project
+          </Button>
+        </Col>
+      </Row>
+
+      <Modal show={modal} onHide={toggleModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create Project</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <FormGroup>
-              <Label for="projectName">
-                <Translate contentKey="home.projectName">Project Name</Translate>
-              </Label>
-              <Input type="text" name="projectName" id="projectName" value={projectName} onChange={handleProjectNameChange} required />
-            </FormGroup>
-            <ModalFooter>
-              <Button color="primary" type="submit">
-                <Translate contentKey="entity.action.save">Save</Translate>
+            <Form.Group controlId="projectName">
+              <Form.Label>Project Name</Form.Label>
+              <Form.Control type="text" value={projectName} onChange={handleProjectNameChange} required />
+            </Form.Group>
+            <Modal.Footer>
+              <Button variant="primary" type="submit">
+                Save
               </Button>
-              <Button color="secondary" onClick={toggleModal}>
-                <Translate contentKey="entity.action.cancel">Cancel</Translate>
+              <Button variant="secondary" onClick={toggleModal}>
+                Cancel
               </Button>
-            </ModalFooter>
+            </Modal.Footer>
           </Form>
-        </ModalBody>
+        </Modal.Body>
       </Modal>
 
-      <Col md="6">
-        <h3>
-          <Translate contentKey="home.recentProjects">Recent Projects</Translate>
-        </h3>
-        <ul>
-          {recentProjects.map((project, index) => (
-            <li key={index}>
-              <strong>Project Name:</strong> {project.projectName}
-            </li>
-          ))}
-        </ul>
-      </Col>
-    </Row>
+      <Row>
+        <Col md="6">
+          <h3>Projects</h3>
+          <ListGroup>
+            {projects.map(project => (
+              <ListGroup.Item key={project.id} className="d-flex justify-content-between align-items-center">
+                <span>{project.name}</span>
+                <Dropdown>
+                  <Dropdown.Toggle variant="secondary" id={`dropdown-${project.id}`}>
+                    ...
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => handleModifyProject(project.id)}>Modify</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Col>
+      </Row>
+
+      {editModalOpen && (
+        <EditProjectModal
+          project={selectedProject}
+          accessToken={accessToken}
+          onModalClose={() => setEditModalOpen(false)}
+          onProjectNameChange={handleProjectNameChange}
+          onProjectUpdate={handleProjectUpdate}
+        />
+      )}
+    </Container>
   );
 };
-
-TranslatorContext.setDefaultLocale('en');
-TranslatorContext.setRenderInnerTextForMissingKeys(false);
 
 export default Home;

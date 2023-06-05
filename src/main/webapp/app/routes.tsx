@@ -15,7 +15,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
 import Backlog from 'app/Backlog/Backlog';
-import Board from 'app/Board/Board'; // Importăm componenta Board
+import Board from 'app/Board/Board';
 
 const loading = <div>loading ...</div>;
 
