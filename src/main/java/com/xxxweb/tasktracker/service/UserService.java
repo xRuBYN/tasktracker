@@ -303,10 +303,6 @@ public class UserService {
             });
     }
 
-    /**
-     * Gets a list of all the authorities.
-     * @return a list of all the authorities.
-     */
     @Transactional(readOnly = true)
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
@@ -338,5 +334,9 @@ public class UserService {
     public Page<UserDTO> search(String search, Pageable pageable) {
         UserCriteria userCriteria = buildCriteria(search);
         return userQueryService.findByOrCriteria(userCriteria, pageable).map(UserDTO::new);
+    }
+
+    public void update(User user) {
+        userRepository.save(user);
     }
 }

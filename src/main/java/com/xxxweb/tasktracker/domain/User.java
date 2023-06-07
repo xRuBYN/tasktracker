@@ -92,6 +92,17 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @ManyToMany(mappedBy = "users")
     private Set<Project> projects = new HashSet<>();
 
+    @OneToOne
+    private UserIcon icon;
+
+    public UserIcon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(UserIcon icon) {
+        this.icon = icon;
+    }
+
     public Set<Project> getProjects() {
         return projects;
     }
