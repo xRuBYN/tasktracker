@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity Issue.
+    -->
+    <changeSet id="20230606011127-1" author="jhipster">
+        <createTable tableName="user_icon">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="type" type="varchar(50)">
+                <constraints nullable="true" />
+            </column>
+            <column name="data" type="bytea">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20230606011127-2" author="jhipster">
+        <addColumn tableName="jhi_user">
+            <column name="icon_id" type="bigint"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20230606011127-3" author="jhipster">
+        <addForeignKeyConstraint
+            baseTableName="jhi_user"
+            baseColumnNames="icon_id"
+            constraintName="fx_user_icon"
+            referencedTableName="user_icon"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

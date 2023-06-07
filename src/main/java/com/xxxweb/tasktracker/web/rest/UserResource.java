@@ -215,4 +215,11 @@ public class UserResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        log.info("REST request to get User by id:{}", id);
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
 }

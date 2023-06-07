@@ -46,6 +46,7 @@
 
         <!-- Dependency versions -->
         <jhipster-dependencies.version>7.9.3</jhipster-dependencies.version>
+        <minio.version>8.5.1</minio.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
         <spring-boot.version>2.7.3</spring-boot.version>
@@ -106,6 +107,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
+        </dependency>
         <dependency>
             <groupId>tech.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
