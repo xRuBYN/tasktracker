@@ -1,148 +1,195 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Modal, Form, ListGroup, Dropdown } from 'react-bootstrap';
-import EditProjectModal from 'app/EditName/Edit';
-const Home = () => {
-  const [modal, setModal] = useState(false);
+import axios from 'axios';
+import './styles.scss';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+interface Observer {
+  update: (action: string) => void;
+}
+
+interface Subject {
+  attach: (observer: Observer) => void;
+  detach: (observer: Observer) => void;
+  notify: (action: string) => void;
+}
+
+const Home: React.FC = () => {
   const [projectName, setProjectName] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [projects, setProjects] = useState([]);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
 
-  useEffect(() => {
-    // Fetch projects from localStorage on component mount
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      setProjects(JSON.parse(storedProjects));
-    }
-  }, []);
+  const [notificationObservers, setNotificationObservers] = useState<Observer[]>([]);
+  const [alerts, setAlerts] = useState<string[]>([]);
 
-  useEffect(() => {
-    // Update localStorage when projects state changes
-    localStorage.setItem('projects', JSON.stringify(projects));
-  }, [projects]);
-
-  const toggleModal = () => {
-    setModal(!modal);
+  const handleAlert = (action: string) => {
+    toast(action, { autoClose: 3000 });
   };
 
-  const handleSubmit = async event => {
+  const projectSubject: Subject = {
+    attach(observer: Observer) {
+      setNotificationObservers(prevObservers => [...prevObservers, observer]);
+    },
+    detach(observer: Observer) {
+      setNotificationObservers(prevObservers => prevObservers.filter(prevObserver => prevObserver !== observer));
+    },
+    notify(action: string) {
+      notificationObservers.forEach(observer => observer.update(action));
+    },
+  };
+
+  const handleCreateProject = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProjectId(null);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    const token = sessionStorage.getItem('token');
+
     try {
-      const response = await fetch('http://localhost:8080/api/project/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: accessToken, // Utilizează variabila accessToken aici
-        },
-        body: JSON.stringify({
-          name: projectName,
-        }),
-      });
+      if (selectedProjectId) {
+        const response = await axios.put(
+          `http://localhost:8080/api/project/edit/${selectedProjectId}`,
+          { name: projectName },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      if (response.ok) {
-        const project = await response.json();
-        console.log('Project created:', project);
-        setProjects([...projects, project]); // Add the newly created project to the projects state
-        toggleModal();
+        const updatedProject = { id: response.data.id, name: projectName };
+
+        const updatedProjects = projects.map(project => (project.id === selectedProjectId ? updatedProject : project));
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+
+        setProjects(updatedProjects);
+
+        projectSubject.notify('edit_project');
       } else {
-        console.error('Request failed with status:', response.status);
+        const response = await axios.post(
+          'http://localhost:8080/api/project/create',
+          { name: projectName },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const project = { id: response.data.id, name: projectName };
+
+        const projectsFromStorage = JSON.parse(localStorage.getItem('projects') || '[]');
+        projectsFromStorage.push(project);
+        localStorage.setItem('projects', JSON.stringify(projectsFromStorage));
+
+        setProjects([...projects, project]);
+
+        projectSubject.notify('create_project');
       }
+
+      setProjectName('');
+      setIsModalOpen(false);
+      setSelectedProjectId(null);
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error('Error:', error);
     }
   };
 
-  const handleModifyProject = projectId => {
-    console.log('Modify project:', projectId);
+  const handleDeleteProject = projectId => {
+    const updatedProjects = projects.filter(project => project.id !== projectId);
+
+    setProjects(updatedProjects);
+
+    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+
+    projectSubject.notify('delete_project');
+  };
+
+  const fetchProjectsFromLocalStorage = () => {
+    const projectsFromStorage = JSON.parse(localStorage.getItem('projects') || '[]');
+    setProjects(projectsFromStorage);
+  };
+
+  useEffect(() => {
+    fetchProjectsFromLocalStorage();
+  }, []);
+
+  const handleEditProject = projectId => {
     const projectToEdit = projects.find(project => project.id === projectId);
-    if (projectToEdit) {
-      setSelectedProject(projectToEdit);
-      setEditModalOpen(true);
-    }
+    setProjectName(projectToEdit.name);
+    setSelectedProjectId(projectId);
+    setIsModalOpen(true);
   };
 
-  const handleProjectNameChange = event => {
-    setSelectedProject(prevProject => ({
-      ...prevProject,
-      name: event.target.value,
-    }));
+  const notificationObserver: Observer = {
+    update(action: string) {
+      console.log(`Received notification for action: ${action}`);
+      handleAlert(`Received notification: ${action}`);
+    },
   };
 
-  const handleProjectUpdate = updatedProject => {
-    setProjects(prevProjects => {
-      const updatedProjects = prevProjects.map(project => (project.id === updatedProject.id ? updatedProject : project));
-      return updatedProjects;
-    });
-  };
+  useEffect(() => {
+    projectSubject.attach(notificationObserver);
 
-  const accessToken =
-    'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfVVNFUiIsImV4cCI6MTY4NTk2NTUwM30.A77yFmYEW7WBJihKr1B0vwzlNjYf7hyuCp8NNzvOd4aKBfYLXF3A1X2A7zC5dKVej4Fu6yJpZvgSvOJ95EIpNA';
+    return () => {
+      projectSubject.detach(notificationObserver);
+    };
+  }, []);
+
   return (
-    <Container>
-      <Row>
-        <Col md="6">
-          <h2>Welcome!</h2>
-          <hr />
-          <Button variant="primary" onClick={toggleModal}>
-            Create Project
-          </Button>
-        </Col>
-      </Row>
+    <div className="home">
+      <ToastContainer />
 
-      <Modal show={modal} onHide={toggleModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Create Project</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="projectName">
-              <Form.Label>Project Name</Form.Label>
-              <Form.Control type="text" value={projectName} onChange={handleProjectNameChange} required />
-            </Form.Group>
-            <Modal.Footer>
-              <Button variant="primary" type="submit">
-                Save
-              </Button>
-              <Button variant="secondary" onClick={toggleModal}>
-                Cancel
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal.Body>
-      </Modal>
+      <h1>Task-Tracker</h1>
+      <button onClick={handleCreateProject}>Create</button>
 
-      <Row>
-        <Col md="6">
-          <h3>Projects</h3>
-          <ListGroup>
-            {projects.map(project => (
-              <ListGroup.Item key={project.id} className="d-flex justify-content-between align-items-center">
-                <span>{project.name}</span>
-                <Dropdown>
-                  <Dropdown.Toggle variant="secondary" id={`dropdown-${project.id}`}>
-                    ...
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleModifyProject(project.id)}>Modify</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Col>
-      </Row>
-
-      {editModalOpen && (
-        <EditProjectModal
-          project={selectedProject}
-          accessToken={accessToken}
-          onModalClose={() => setEditModalOpen(false)}
-          onProjectNameChange={handleProjectNameChange}
-          onProjectUpdate={handleProjectUpdate}
-        />
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <span className="close" onClick={handleCloseModal}>
+              &times;
+            </span>
+            <form onSubmit={handleSubmit}>
+              <label>
+                Name:
+                <input type="text" value={projectName} onChange={event => setProjectName(event.target.value)} />
+              </label>
+              <button type="submit">Save</button>
+            </form>
+          </div>
+        </div>
       )}
-    </Container>
+
+      <h2>My Projects</h2>
+      <ul>
+        {projects.map(project => (
+          <li key={project.id}>
+            {project.name}
+            <button className="edit-button" onClick={() => handleEditProject(project.id)}>
+              Edit
+            </button>
+            <button className="delete-button" onClick={() => handleDeleteProject(project.id)}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="alerts">
+        {alerts.map((alert, index) => (
+          <div className="alert" key={index}>
+            {alert}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

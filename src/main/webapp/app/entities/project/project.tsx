@@ -22,7 +22,8 @@ export const Project = () => {
     overridePaginationStateWithQueryParams(getSortState(location, ITEMS_PER_PAGE, 'id'), location.search)
   );
 
-  const projectList = useAppSelector(state => state.project.entities);
+  const projectList = useAppSelector(state => state.project.entities) || [];
+
   const loading = useAppSelector(state => state.project.loading);
   const totalItems = useAppSelector(state => state.project.totalItems);
 
@@ -98,7 +99,7 @@ export const Project = () => {
         </div>
       </h2>
       <div className="table-responsive">
-        {projectList && projectList.length > 0 ? (
+        {Array.isArray(projectList) && projectList.length > 0 ? (
           <Table responsive>
             <thead>
               <tr>

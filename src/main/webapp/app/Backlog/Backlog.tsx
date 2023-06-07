@@ -1,104 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { Translate } from 'react-jhipster';
-import { Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import axios from 'axios';
 
-const Backlog = () => {
-  const [issueType, setIssueType] = useState('');
+const Backlog: React.FC = () => {
+  const [priority, setPriority] = useState('');
+  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [workflow, setWorkflow] = useState('');
-  const [backlogItems, setBacklogItems] = useState([]);
+  const [selectedProject, setSelectedProject] = useState('');
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    const storedBacklogItems = localStorage.getItem('backlogItems');
-    if (storedBacklogItems) {
-      setBacklogItems(JSON.parse(storedBacklogItems));
-    }
+    const storedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+    setProjects(storedProjects);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('backlogItems', JSON.stringify(backlogItems));
-  }, [backlogItems]);
-
-  const handleIssueTypeChange = event => {
-    setIssueType(event.target.value);
+  const handlePriorityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPriority(event.target.value);
   };
 
-  const handleDescriptionChange = event => {
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
+  };
+
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDescription(event.target.value);
   };
 
-  const handleWorkflowChange = event => {
-    setWorkflow(event.target.value);
+  const handleProjectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProject(event.target.value);
   };
 
-  const handleAddToBoard = () => {
-    const backlogItem = {
-      issueType,
-      description,
-      workflow,
-    };
-
-    setBacklogItems([...backlogItems, backlogItem]);
-    setIssueType('');
-    setDescription('');
-    setWorkflow('');
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const columnId = localStorage.getItem('columnId');
+    if (columnId && selectedProject) {
+      const apiUrl = `http://localhost:8080/api/issue/${columnId}`;
+      try {
+        const response = await axios.post(apiUrl, {
+          project: selectedProject,
+          priority,
+          name,
+          description,
+        });
+        // Issue-ul a fost adăugat cu succes
+        console.log(response.data);
+      } catch (error) {
+        console.error('A apărut o eroare la adăugarea issue-ului:', error);
+      }
+    }
   };
 
   return (
-    <Row>
-      <Col md="6">
-        <h2>
-          <Translate contentKey="backlog.title">Backlog</Translate>
-        </h2>
-        <hr />
-        <Form>
-          <FormGroup>
-            <Label for="issueType">
-              <Translate contentKey="backlog.issueType">Issue Type</Translate>
-            </Label>
-            <Input type="select" name="issueType" id="issueType" value={issueType} onChange={handleIssueTypeChange} required>
-              <option value="">-- Select Issue Type --</option>
-              <option value="bug">Bug</option>
-              <option value="task">Task</option>
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for="description">
-              <Translate contentKey="backlog.description">Description</Translate>
-            </Label>
-            <Input type="textarea" name="description" id="description" value={description} onChange={handleDescriptionChange} required />
-          </FormGroup>
-          <FormGroup>
-            <Label for="workflow">
-              <Translate contentKey="backlog.workflow">Workflow</Translate>
-            </Label>
-            <Input type="select" name="workflow" id="workflow" value={workflow} onChange={handleWorkflowChange} required>
-              <option value="">-- Select Workflow --</option>
-              <option value="todo">To Do</option>
-              <option value="done">Done</option>
-            </Input>
-          </FormGroup>
-          <Button color="primary" type="button" onClick={handleAddToBoard}>
-            <Translate contentKey="backlog.save">Save</Translate>
-          </Button>
-        </Form>
-
-        <hr />
-
-        <h3>Backlog Items:</h3>
-        <ul>
-          {backlogItems.map((item, index) => (
-            <li key={index}>
-              <strong>Issue Type:</strong> {item.issueType}
-              <br />
-              <strong>Description:</strong> {item.description}
-              <br />
-              <strong>Workflow:</strong> {item.workflow}
-            </li>
-          ))}
-        </ul>
-      </Col>
-    </Row>
+    <div>
+      <h1>Adaugă Issue</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+            Proiect:
+            <select value={selectedProject} onChange={handleProjectChange}>
+              <option value="">Selectează un proiect</option>
+              {projects.map((project, index) => (
+                <option key={project.id} value={index}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Prioritate:
+            <input type="text" value={priority} onChange={handlePriorityChange} />
+          </label>
+        </div>
+        <div>
+          <label>
+            Nume:
+            <input type="text" value={name} onChange={handleNameChange} />
+          </label>
+        </div>
+        <div>
+          <label>
+            Descriere:
+            <textarea value={description} onChange={handleDescriptionChange} />
+          </label>
+        </div>
+        <button type="submit">Adaugă</button>
+      </form>
+    </div>
   );
 };
 

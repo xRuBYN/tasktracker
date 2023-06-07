@@ -24,8 +24,8 @@ export const IssueUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const columnEntities = useAppSelector(state => state.columnEntity.entities);
-  const users = useAppSelector(state => state.userManagement.users);
+  const columnEntities = useAppSelector(state => state.columnEntity.entities) || [];
+  const users = useAppSelector(state => state.userManagement.users) || [];
   const issueEntity = useAppSelector(state => state.issue.entity);
   const loading = useAppSelector(state => state.issue.loading);
   const updating = useAppSelector(state => state.issue.updating);
@@ -45,7 +45,7 @@ export const IssueUpdate = () => {
 
     dispatch(getColumnEntities({}));
     dispatch(getUsers({}));
-  }, []);
+  }, [columnEntities]);
 
   useEffect(() => {
     if (updateSuccess) {
@@ -54,9 +54,6 @@ export const IssueUpdate = () => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
-    values.createdDate = convertDateTimeToServer(values.createdDate);
-    values.lastModifiedDate = convertDateTimeToServer(values.lastModifiedDate);
-
     const entity = {
       ...issueEntity,
       ...values,
@@ -194,13 +191,23 @@ export const IssueUpdate = () => {
                 type="select"
               >
                 <option value="" key="0" />
-                {columnEntities
-                  ? columnEntities.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
-                      </option>
-                    ))
-                  : null}
+                {columnEntities.length > 0 && (
+                  <ValidatedField
+                    id="issue-column"
+                    name="column"
+                    data-cy="column"
+                    label={translate('tasktrackerApp.issue.column')}
+                    type="select"
+                  >
+                    <option value="" key="0" />
+                    {Array.isArray(columnEntities) &&
+                      columnEntities.map(otherEntity => (
+                        <option value={otherEntity.id} key={otherEntity.id}>
+                          {otherEntity.id}
+                        </option>
+                      ))}
+                  </ValidatedField>
+                )}
               </ValidatedField>
               <ValidatedField
                 id="issue-assigned"

@@ -1,0 +1,20 @@
+.column-container {
+  display: flex;
+  gap: 16px;
+}
+
+.column {
+  flex: 1;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.issue {
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

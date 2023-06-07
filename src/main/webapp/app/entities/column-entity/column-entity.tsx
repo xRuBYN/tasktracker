@@ -98,7 +98,7 @@ export const ColumnEntity = () => {
         </div>
       </h2>
       <div className="table-responsive">
-        {columnEntityList && columnEntityList.length > 0 ? (
+        {Array.isArray(columnEntityList) && columnEntityList.length > 0 ? (
           <Table responsive>
             <thead>
               <tr>

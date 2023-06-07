@@ -8,14 +8,17 @@ import Activate from 'app/modules/account/activate/activate';
 import PasswordResetInit from 'app/modules/account/password-reset/init/password-reset-init';
 import PasswordResetFinish from 'app/modules/account/password-reset/finish/password-reset-finish';
 import Logout from 'app/modules/login/logout';
-import Home from 'app/modules/home/home';
+
 import EntitiesRoutes from 'app/entities/routes';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
 import Backlog from 'app/Backlog/Backlog';
-import Board from 'app/Board/Board';
+import IssuePage from 'app/Issue/Issue';
+import AddColumnModal from 'app/Issue/Issue';
+import BoardPage from 'app/Board/Board';
+import Home from 'app/modules/home/home';
 
 const loading = <div>loading ...</div>;
 
@@ -30,6 +33,7 @@ const Admin = Loadable({
 });
 
 const AppRoutes = () => {
+  const projectId = localStorage.getItem('projectId');
   return (
     <div className="view-routes">
       <ErrorBoundaryRoutes>
@@ -68,15 +72,25 @@ const AppRoutes = () => {
             </PrivateRoute>
           }
         />
-        {/* Adăugăm ruta pentru componenta Board */}
+
+        {/*<Route*/}
+        {/*  path="issuepage" // Adăugăm ruta pentru componenta BoardPage*/}
+        {/*  element={*/}
+        {/*    <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>*/}
+        {/*      <AddColumnModal projectId={projectId} />*/}
+        {/*    </PrivateRoute>*/}
+        {/*  }*/}
+        {/*/>*/}
+
         <Route
-          path="board"
+          path="boardpag"
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
-              <Board />
+              <BoardPage />
             </PrivateRoute>
           }
         />
+
         <Route
           path="*"
           element={

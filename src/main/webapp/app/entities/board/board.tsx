@@ -54,28 +54,28 @@ export const Board = () => {
     const sort = params.get(SORT);
     if (page && sort) {
       const sortSplit = sort.split(',');
-      setPaginationState({
-        ...paginationState,
+      setPaginationState(prevState => ({
+        ...prevState,
         activePage: +page,
         sort: sortSplit[0],
         order: sortSplit[1],
-      });
+      }));
     }
   }, [location.search]);
 
   const sort = p => () => {
-    setPaginationState({
-      ...paginationState,
-      order: paginationState.order === ASC ? DESC : ASC,
+    setPaginationState(prevState => ({
+      ...prevState,
+      order: prevState.order === ASC ? DESC : ASC,
       sort: p,
-    });
+    }));
   };
 
   const handlePagination = currentPage =>
-    setPaginationState({
-      ...paginationState,
+    setPaginationState(prevState => ({
+      ...prevState,
       activePage: currentPage,
-    });
+    }));
 
   const handleSyncList = () => {
     sortEntities();
@@ -98,28 +98,24 @@ export const Board = () => {
         </div>
       </h2>
       <div className="table-responsive">
-        {boardList && boardList.length > 0 ? (
+        {Array.isArray(boardList) && boardList.length > 0 ? (
           <Table responsive>
             <thead>
               <tr>
                 <th className="hand" onClick={sort('id')}>
-                  <Translate contentKey="tasktrackerApp.board.id">Id</Translate> <FontAwesomeIcon icon="sort" />
+                  <Translate contentKey="global.field.id">ID</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={sort('name')}>
                   <Translate contentKey="tasktrackerApp.board.name">Name</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('createdDate')}>
-                  <Translate contentKey="tasktrackerApp.board.createdDate">Created Date</Translate> <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={sort('description')}>
+                  <Translate contentKey="tasktrackerApp.board.description">Description</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('createdBy')}>
-                  <Translate contentKey="tasktrackerApp.board.createdBy">Created By</Translate> <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={sort('createdAt')}>
+                  <Translate contentKey="tasktrackerApp.board.createdAt">Created At</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('lastModifiedBy')}>
-                  <Translate contentKey="tasktrackerApp.board.lastModifiedBy">Last Modified By</Translate> <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('lastModifiedDate')}>
-                  <Translate contentKey="tasktrackerApp.board.lastModifiedDate">Last Modified Date</Translate>{' '}
-                  <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="tasktrackerApp.board.updatedAt">Updated At</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -128,44 +124,29 @@ export const Board = () => {
               {boardList.map((board, i) => (
                 <tr key={`entity-${i}`} data-cy="entityTable">
                   <td>
-                    <Button tag={Link} to={`/board/${board.id}`} color="link" size="sm">
+                    <Button tag={Link} to={`${location.pathname}/${board.id}`} color="link" size="sm">
                       {board.id}
                     </Button>
                   </td>
                   <td>{board.name}</td>
-                  <td>{board.createdDate ? <TextFormat type="date" value={board.createdDate} format={APP_DATE_FORMAT} /> : null}</td>
-                  <td>{board.createdBy}</td>
-                  <td>{board.lastModifiedBy}</td>
-                  <td>
-                    {board.lastModifiedDate ? <TextFormat type="date" value={board.lastModifiedDate} format={APP_DATE_FORMAT} /> : null}
-                  </td>
-                  <td className="text-end">
+                  <td>{board.description}</td>
+                  <td>{board.createdAt ? <TextFormat type="date" value={board.createdAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>{board.updatedAt ? <TextFormat type="date" value={board.updatedAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
-                      <Button tag={Link} to={`/board/${board.id}`} color="info" size="sm" data-cy="entityDetailsButton">
+                      <Button tag={Link} to={`${location.pathname}/${board.id}`} color="info" size="sm">
                         <FontAwesomeIcon icon="eye" />{' '}
                         <span className="d-none d-md-inline">
                           <Translate contentKey="entity.action.view">View</Translate>
                         </span>
                       </Button>
-                      <Button
-                        tag={Link}
-                        to={`/board/${board.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="primary"
-                        size="sm"
-                        data-cy="entityEditButton"
-                      >
+                      <Button tag={Link} to={`${location.pathname}/${board.id}/edit`} color="primary" size="sm">
                         <FontAwesomeIcon icon="pencil-alt" />{' '}
                         <span className="d-none d-md-inline">
                           <Translate contentKey="entity.action.edit">Edit</Translate>
                         </span>
                       </Button>
-                      <Button
-                        tag={Link}
-                        to={`/board/${board.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="danger"
-                        size="sm"
-                        data-cy="entityDeleteButton"
-                      >
+                      <Button tag={Link} to={`${location.pathname}/${board.id}/delete`} color="danger" size="sm">
                         <FontAwesomeIcon icon="trash" />{' '}
                         <span className="d-none d-md-inline">
                           <Translate contentKey="entity.action.delete">Delete</Translate>
@@ -187,10 +168,10 @@ export const Board = () => {
       </div>
       {totalItems ? (
         <div className={boardList && boardList.length > 0 ? '' : 'd-none'}>
-          <div className="justify-content-center d-flex">
-            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} i18nEnabled />
+          <div className="d-flex justify-content-end">
+            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} />
           </div>
-          <div className="justify-content-center d-flex">
+          <div className="d-flex justify-content-center">
             <JhiPagination
               activePage={paginationState.activePage}
               onSelect={handlePagination}

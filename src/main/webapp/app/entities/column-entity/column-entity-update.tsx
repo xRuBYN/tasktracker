@@ -162,7 +162,7 @@ export const ColumnEntityUpdate = () => {
                 type="select"
               >
                 <option value="" key="0" />
-                {projects
+                {Array.isArray(projects)
                   ? projects.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
                         {otherEntity.id}
