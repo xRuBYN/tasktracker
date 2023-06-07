@@ -98,7 +98,7 @@ export const Issue = () => {
         </div>
       </h2>
       <div className="table-responsive">
-        {issueList && issueList.length > 0 ? (
+        {Array.isArray(issueList) && issueList.length > 0 ? (
           <Table responsive>
             <thead>
               <tr>

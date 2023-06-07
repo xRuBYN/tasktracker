@@ -1,4 +1,5 @@
 import './header.scss';
+import '../../../Create/create.scss';
 
 import React, { useState } from 'react';
 import { Translate, Storage } from 'react-jhipster';
@@ -12,6 +13,7 @@ import { AdminMenu, EntitiesMenu, AccountMenu, LocaleMenu } from '../menus';
 import { useAppDispatch } from 'app/config/store';
 import { setLocale } from 'app/shared/reducers/locale';
 import { Link } from 'react-router-dom';
+import Create from 'app/Create/Create';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
@@ -31,6 +33,12 @@ const Header = (props: IHeaderProps) => {
     const langKey = event.target.value;
     Storage.session.set('locale', langKey);
     dispatch(setLocale(langKey));
+  };
+
+  const [showModal, setShowModal] = useState(false);
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
 
   const renderDevRibbon = () =>
@@ -57,16 +65,18 @@ const Header = (props: IHeaderProps) => {
             </Link>
 
             {props.isAuthenticated && (
-              <Link to="/backlog" className="nav-link">
+              <Link to="/boardpag" className="nav-link">
                 <FontAwesomeIcon icon={faTasks} className="nav-icon" />
-                <span>Backlog</span>
+                <span>Board</span>
               </Link>
             )}
 
-            <Link to="/board" className="nav-link">
-              <FontAwesomeIcon icon={faClipboardList} className="nav-name" />
-              <span>Board</span>
-            </Link>
+            {/*{props.isAuthenticated && (*/}
+            {/*  <Link to="/backlog" className="nav-link">*/}
+            {/*    <FontAwesomeIcon icon={faTasks} className="nav-icon" />*/}
+            {/*    <span>Board</span>*/}
+            {/*  </Link>*/}
+            {/*)}*/}
 
             {props.isAuthenticated && <EntitiesMenu />}
             {props.isAuthenticated && props.isAdmin && <AdminMenu showOpenAPI={props.isOpenAPIEnabled} />}
