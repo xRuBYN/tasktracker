@@ -210,3 +210,8 @@ jhipster:
 # ===================================================================
 
 # application:
+minio:
+  uri: http://localhost:9000
+  access-key: minio99
+  secret-key: minio123
+  bucket-name: tasktracker
