@@ -99,7 +99,7 @@ const Home: React.FC = () => {
       setIsModalOpen(false);
       setSelectedProjectId(null);
     } catch (error) {
-      console.error('A apărut o eroare la crearea/editarea proiectului:', error);
+      console.error('Error:', error);
     }
   };
 
