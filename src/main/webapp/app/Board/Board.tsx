@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import './board.css';
+import { AiFillDelete } from 'react-icons/ai';
 
 interface Column {
   id: number;
   name: string;
+  status: string;
+  color: string;
 }
 
 interface Issue {
@@ -22,16 +25,51 @@ const App: React.FC = () => {
   const [issueName, setIssueName] = useState('');
   const [issuePriority, setIssuePriority] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
+  const [draggedColumnId, setDraggedColumnId] = useState<number | null>(null);
 
   const handleAddColumn = () => {
     if (columnName) {
-      const newColumn: Column = {
-        id: Date.now(),
-        name: columnName,
-      };
+      let newColumn: Column;
+      if (columnName.toLowerCase() === 'to do') {
+        newColumn = {
+          id: Date.now(),
+          name: columnName,
+          status: 'To Do',
+          color: 'grey',
+        };
+      } else if (columnName.toLowerCase() === 'in progress') {
+        newColumn = {
+          id: Date.now(),
+          name: columnName,
+          status: 'In Progress',
+          color: 'blue',
+        };
+      } else if (columnName.toLowerCase() === 'done') {
+        newColumn = {
+          id: Date.now(),
+          name: columnName,
+          status: 'Done',
+          color: 'green',
+        };
+      } else {
+        newColumn = {
+          id: Date.now(),
+          name: columnName,
+          status: 'Unknown',
+          color: 'black',
+        };
+      }
+
       setColumns([...columns, newColumn]);
       setColumnName('');
     }
+  };
+
+  const handleDeleteColumn = (columnId: number) => {
+    const updatedColumns = columns.filter(column => column.id !== columnId);
+    setColumns(updatedColumns);
+    const updatedIssues = issues.filter(issue => issue.columnId !== columnId);
+    setIssues(updatedIssues);
   };
 
   const handleAddIssue = () => {
@@ -48,6 +86,31 @@ const App: React.FC = () => {
       setIssuePriority('');
       setIssueDescription('');
     }
+  };
+
+  const handleDragStart = (columnId: number) => {
+    setDraggedColumnId(columnId);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>, targetColumnId: number) => {
+    event.preventDefault();
+    if (draggedColumnId !== null && draggedColumnId !== targetColumnId) {
+      const updatedIssues = issues.map(issue => {
+        if (issue.columnId === draggedColumnId) {
+          return {
+            ...issue,
+            columnId: targetColumnId,
+          };
+        }
+        return issue;
+      });
+      setIssues(updatedIssues);
+    }
+    setDraggedColumnId(null);
   };
 
   return (
@@ -72,17 +135,31 @@ const App: React.FC = () => {
       </Row>
       <div className="column-container">
         {columns.map(column => (
-          <div key={column.id} className="column">
+          <div
+            key={column.id}
+            className="column"
+            draggable
+            onDragStart={() => handleDragStart(column.id)}
+            onDragOver={handleDragOver}
+            onDrop={event => handleDrop(event, column.id)}
+            style={{ backgroundColor: column.color }}
+          >
             <h3>{column.name}</h3>
-            {issues
-              .filter(issue => issue.columnId === column.id)
-              .map(issue => (
-                <div key={issue.id}>
-                  <h4>{issue.name}</h4>
-                  <p>Priority: {issue.priority}</p>
-                  <p>{issue.description}</p>
-                </div>
-              ))}
+            <Button variant="danger" className="delete-button" onClick={() => handleDeleteColumn(column.id)}>
+              <AiFillDelete className="delete-icon" />
+            </Button>
+
+            <div className="issue-container">
+              {issues
+                .filter(issue => issue.columnId === column.id)
+                .map(issue => (
+                  <div key={issue.id} className="issue">
+                    <h4>{issue.name}</h4>
+                    <p>Priority: {issue.priority}</p>
+                    <p>{issue.description}</p>
+                  </div>
+                ))}
+            </div>
           </div>
         ))}
       </div>
